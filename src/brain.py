@@ -278,6 +278,7 @@ class BrainLayer:
 def generate_content_id() -> str:
     """Generate unique content ID."""
     import uuid
+
     return f"content_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
 

@@ -3,9 +3,9 @@
 from pathlib import Path
 from typing import Any
 
+from ..video.hyperframes import HyperFramesClient
+from ..video.video_use import EditConfig, VideoUseClient
 from .base import BaseAgent
-from ..video.hyperframes import HyperFramesClient, Composition
-from ..video.video_use import VideoUseClient, EditConfig
 
 
 class Designer(BaseAgent):
@@ -147,42 +147,50 @@ class Designer(BaseAgent):
         elements = []
 
         if context.get("title"):
-            elements.append({
-                "type": "title",
-                "text": context["title"],
-                "start": context.get("title_start", 0),
-                "duration": context.get("title_duration", 3),
-                "animate": "fade-in",
-            })
+            elements.append(
+                {
+                    "type": "title",
+                    "text": context["title"],
+                    "start": context.get("title_start", 0),
+                    "duration": context.get("title_duration", 3),
+                    "animate": "fade-in",
+                }
+            )
 
         if context.get("subtitle"):
-            elements.append({
-                "type": "subtitle",
-                "text": context["subtitle"],
-                "start": context.get("subtitle_start", 0.5),
-                "duration": context.get("subtitle_duration", 2.5),
-                "animate": "slide-up",
-            })
+            elements.append(
+                {
+                    "type": "subtitle",
+                    "text": context["subtitle"],
+                    "start": context.get("subtitle_start", 0.5),
+                    "duration": context.get("subtitle_duration", 2.5),
+                    "animate": "slide-up",
+                }
+            )
 
         if context.get("lower_third"):
             lt = context["lower_third"]
-            elements.append({
-                "type": "lower_third",
-                "name": lt.get("name", ""),
-                "title": lt.get("title", ""),
-                "start": lt.get("start", 2),
-                "duration": lt.get("duration", 4),
-            })
+            elements.append(
+                {
+                    "type": "lower_third",
+                    "name": lt.get("name", ""),
+                    "title": lt.get("title", ""),
+                    "start": lt.get("start", 2),
+                    "duration": lt.get("duration", 4),
+                }
+            )
 
         for cta in context.get("ctas", []):
-            elements.append({
-                "type": "title",
-                "text": cta.get("text", ""),
-                "start": cta.get("start", duration - 3),
-                "duration": cta.get("duration", 3),
-                "top": "80%",
-                "animate": "scale-in",
-            })
+            elements.append(
+                {
+                    "type": "title",
+                    "text": cta.get("text", ""),
+                    "start": cta.get("start", duration - 3),
+                    "duration": cta.get("duration", 3),
+                    "top": "80%",
+                    "animate": "scale-in",
+                }
+            )
 
         composition = self.hyperframes.create_composition(
             elements=elements,
@@ -233,33 +241,39 @@ class Designer(BaseAgent):
         overlay_elements = []
 
         if context.get("title"):
-            overlay_elements.append({
-                "type": "title",
-                "text": context["title"],
-                "start": 0,
-                "duration": 4,
-                "animate": "fade-in",
-            })
+            overlay_elements.append(
+                {
+                    "type": "title",
+                    "text": context["title"],
+                    "start": 0,
+                    "duration": 4,
+                    "animate": "fade-in",
+                }
+            )
 
         if context.get("lower_third"):
             lt = context["lower_third"]
-            overlay_elements.append({
-                "type": "lower_third",
-                "name": lt.get("name", ""),
-                "title": lt.get("title", ""),
-                "start": 3,
-                "duration": 5,
-            })
+            overlay_elements.append(
+                {
+                    "type": "lower_third",
+                    "name": lt.get("name", ""),
+                    "title": lt.get("title", ""),
+                    "start": 3,
+                    "duration": 5,
+                }
+            )
 
         if context.get("cta"):
-            overlay_elements.append({
-                "type": "title",
-                "text": context["cta"],
-                "start": duration - 5,
-                "duration": 5,
-                "top": "85%",
-                "animate": "scale-in",
-            })
+            overlay_elements.append(
+                {
+                    "type": "title",
+                    "text": context["cta"],
+                    "start": duration - 5,
+                    "duration": 5,
+                    "top": "85%",
+                    "animate": "scale-in",
+                }
+            )
 
         if overlay_elements:
             overlay_composition = self.hyperframes.create_composition(
@@ -371,6 +385,7 @@ class Designer(BaseAgent):
         )
 
         import json
+
         try:
             start = response.find("[")
             end = response.rfind("]") + 1
@@ -380,7 +395,13 @@ class Designer(BaseAgent):
             pass
 
         return [
-            {"type": "title", "text": content[:50], "start": 0, "duration": duration, "animate": "fade-in"},
+            {
+                "type": "title",
+                "text": content[:50],
+                "start": 0,
+                "duration": duration,
+                "animate": "fade-in",
+            },
         ]
 
     def _format_visual_guide(self) -> str:
@@ -389,7 +410,7 @@ class Designer(BaseAgent):
         colors = visual.get("colors", ["#000000", "#FFFFFF"])
         fonts = visual.get("fonts", {"heading": "Inter", "body": "Inter"})
 
-        return f"""- カラー: {', '.join(colors)}
-- 見出しフォント: {fonts.get('heading', 'Inter')}
-- 本文フォント: {fonts.get('body', 'Inter')}
-- スタイル: {visual.get('style', 'professional')}"""
+        return f"""- カラー: {", ".join(colors)}
+- 見出しフォント: {fonts.get("heading", "Inter")}
+- 本文フォント: {fonts.get("body", "Inter")}
+- スタイル: {visual.get("style", "professional")}"""

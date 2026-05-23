@@ -1,7 +1,5 @@
 """Tests for Brain Layer - customer data persistence."""
 
-import json
-import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -255,16 +253,24 @@ class TestAuditLogs:
 
     def test_append_and_read_logs(self, brain: BrainLayer) -> None:
         """Test audit log appending and reading."""
-        brain.append_log("test_001", "evaluations", {
-            "content_id": "content_001",
-            "score": 95,
-            "verdict": "approved",
-        })
-        brain.append_log("test_001", "evaluations", {
-            "content_id": "content_002",
-            "score": 88,
-            "verdict": "rejected",
-        })
+        brain.append_log(
+            "test_001",
+            "evaluations",
+            {
+                "content_id": "content_001",
+                "score": 95,
+                "verdict": "approved",
+            },
+        )
+        brain.append_log(
+            "test_001",
+            "evaluations",
+            {
+                "content_id": "content_002",
+                "score": 88,
+                "verdict": "rejected",
+            },
+        )
 
         logs = brain.read_logs("test_001", "evaluations")
 
@@ -313,14 +319,17 @@ class TestCustomerManagement:
     ) -> None:
         """Test customer data export."""
         brain.save_brand_dna("test_001", sample_brand_dna)
-        brain.save_content("test_001", ContentRecord(
-            content_id="content_001",
-            content_type="note_article",
-            title="テスト",
-            content="本文",
-            platform="note",
-            created_at=datetime.now().isoformat(),
-        ))
+        brain.save_content(
+            "test_001",
+            ContentRecord(
+                content_id="content_001",
+                content_type="note_article",
+                title="テスト",
+                content="本文",
+                platform="note",
+                created_at=datetime.now().isoformat(),
+            ),
+        )
 
         export_dir = tmp_path / "exports"
         export_dir.mkdir()

@@ -4,8 +4,8 @@ import json
 from datetime import date
 from typing import Any
 
-from .base import BaseAgent
 from ..skills import format_brand_dna
+from .base import BaseAgent
 
 
 class LeadStrategist(BaseAgent):
@@ -201,7 +201,7 @@ class LeadStrategist(BaseAgent):
 {goal}
 
 # 利用可能なエージェント
-{', '.join(available_agents)}
+{", ".join(available_agents)}
 
 # 出力形式（JSON）
 {{

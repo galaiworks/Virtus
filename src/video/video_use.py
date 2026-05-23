@@ -4,7 +4,6 @@ import json
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 
 @dataclass
@@ -93,7 +92,9 @@ class VideoUseClient:
                     str(output_path),
                     "--remove-filler" if config.remove_filler_words else "",
                     "--remove-silence" if config.remove_silence else "",
-                    f"--silence-threshold={config.silence_threshold_db}" if config.remove_silence else "",
+                    f"--silence-threshold={config.silence_threshold_db}"
+                    if config.remove_silence
+                    else "",
                     "--color-grade" if config.color_grade else "",
                     "--subtitles" if config.auto_subtitles else "",
                     f"--subtitle-style={config.subtitle_style}" if config.auto_subtitles else "",

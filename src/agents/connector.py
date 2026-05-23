@@ -3,8 +3,8 @@
 import json
 from typing import Any
 
-from .base import BaseAgent
 from ..skills import format_brand_dna
+from .base import BaseAgent
 
 
 class Connector(BaseAgent):
@@ -73,9 +73,7 @@ class Connector(BaseAgent):
         interaction_history = context.get("interaction_history", [])
         platform = context.get("platform", "x")
 
-        escalation = self._check_escalation_keywords(
-            incoming_message.get("text", "")
-        )
+        escalation = self._check_escalation_keywords(incoming_message.get("text", ""))
         if escalation:
             return {
                 "task_type": "draft_dm_reply",
@@ -106,7 +104,7 @@ class Connector(BaseAgent):
 # 出力形式（JSON）
 {{
   "reply_draft": {{
-    "recipient": "@{sender_profile.get('username', 'user')}",
+    "recipient": "@{sender_profile.get("username", "user")}",
     "message": "返信本文",
     "tone_match": 0.94,
     "suggested_send_time": "受信後30分〜2時間後",

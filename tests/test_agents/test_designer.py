@@ -1,12 +1,13 @@
 """Tests for Designer agent."""
 
-import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from src.agents.designer import Designer
-from src.video.hyperframes import HyperFramesClient, Composition, RenderResult
-from src.video.video_use import VideoUseClient, EditResult, EditConfig
+from src.video.hyperframes import Composition, HyperFramesClient, RenderResult
+from src.video.video_use import EditConfig, VideoUseClient
 
 
 @pytest.fixture
@@ -176,16 +177,18 @@ class TestDesigner:
             success=True,
         )
 
-        result = designer.execute({
-            "task_type": "video",
-            "context": {
-                "platform": "youtube",
-                "duration": 10.0,
-                "elements": [
-                    {"type": "title", "text": "Test", "start": 0, "duration": 3},
-                ],
-            },
-        })
+        result = designer.execute(
+            {
+                "task_type": "video",
+                "context": {
+                    "platform": "youtube",
+                    "duration": 10.0,
+                    "elements": [
+                        {"type": "title", "text": "Test", "start": 0, "duration": 3},
+                    ],
+                },
+            }
+        )
 
         assert result["success"] is True
         assert result["task_type"] == "video"
@@ -198,12 +201,14 @@ class TestDesigner:
         designer: Designer,
     ) -> None:
         """Test editing with non-existent file."""
-        result = designer.execute({
-            "task_type": "edit_footage",
-            "context": {
-                "input_path": "/nonexistent/file.mp4",
-            },
-        })
+        result = designer.execute(
+            {
+                "task_type": "edit_footage",
+                "context": {
+                    "input_path": "/nonexistent/file.mp4",
+                },
+            }
+        )
 
         assert "error" in result
         assert "not found" in result["error"]

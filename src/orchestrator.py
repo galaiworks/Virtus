@@ -53,10 +53,12 @@ class Orchestrator:
         max_retries: int = 3,
     ) -> dict[str, Any]:
         """Write content with Drafter and run it through Guardian's 95-point loop."""
-        draft_result = self.drafter.execute({
-            "task_type": content_type,
-            "context": context,
-        })
+        draft_result = self.drafter.execute(
+            {
+                "task_type": content_type,
+                "context": context,
+            }
+        )
 
         if not draft_result.get("success"):
             return {
@@ -86,10 +88,12 @@ class Orchestrator:
 
     def morning_brief(self, context: dict[str, Any]) -> dict[str, Any]:
         """Generate the morning brief with Lead Strategist."""
-        return self.lead_strategist.execute({
-            "task_type": "morning_brief",
-            "context": context,
-        })
+        return self.lead_strategist.execute(
+            {
+                "task_type": "morning_brief",
+                "context": context,
+            }
+        )
 
     def full_content_pipeline(
         self,
@@ -116,16 +120,23 @@ class Orchestrator:
                 },
             )
 
-            if platform_result["status"] == "approved" and platform in ("note_article", "youtube_script"):
-                visual_result = self.designer.execute({
-                    "task_type": "video" if platform == "youtube_script" else "overlay",
-                    "context": {
-                        "platform": platform.replace("_script", "").replace("note_article", "youtube"),
-                        "content_text": platform_result.get("content", "")[:500],
-                        "title": topic,
-                        "duration": 10.0,
-                    },
-                })
+            if platform_result["status"] == "approved" and platform in (
+                "note_article",
+                "youtube_script",
+            ):
+                visual_result = self.designer.execute(
+                    {
+                        "task_type": "video" if platform == "youtube_script" else "overlay",
+                        "context": {
+                            "platform": platform.replace("_script", "").replace(
+                                "note_article", "youtube"
+                            ),
+                            "content_text": platform_result.get("content", "")[:500],
+                            "title": topic,
+                            "duration": 10.0,
+                        },
+                    }
+                )
                 platform_result["visual"] = visual_result
 
             results["platforms"][platform] = platform_result
@@ -134,10 +145,12 @@ class Orchestrator:
 
     def handle_incoming_message(self, message_context: dict[str, Any]) -> dict[str, Any]:
         """Handle an incoming DM/comment with Connector + Guardian."""
-        connector_result = self.connector.execute({
-            "task_type": "draft_dm_reply",
-            "context": message_context,
-        })
+        connector_result = self.connector.execute(
+            {
+                "task_type": "draft_dm_reply",
+                "context": message_context,
+            }
+        )
 
         output = connector_result.get("output", {})
         if output.get("escalation_required"):

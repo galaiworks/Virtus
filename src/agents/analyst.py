@@ -13,32 +13,44 @@ class Analyst(BaseAgent):
         "content_volume": {
             "metric": "公開されたコンテンツ数",
             "unit": "本/月",
-            "tier_1_target": 30, "tier_2_target": 50, "tier_3_target": 80,
+            "tier_1_target": 30,
+            "tier_2_target": 50,
+            "tier_3_target": 80,
         },
         "lead_acquisition": {
             "metric": "新規リード獲得数",
             "unit": "件/月",
-            "tier_1_target": 20, "tier_2_target": 50, "tier_3_target": 100,
+            "tier_1_target": 20,
+            "tier_2_target": 50,
+            "tier_3_target": 100,
         },
         "meeting_booked": {
             "metric": "商談予約数",
             "unit": "件/月",
-            "tier_1_target": 5, "tier_2_target": 15, "tier_3_target": 30,
+            "tier_1_target": 5,
+            "tier_2_target": 15,
+            "tier_3_target": 30,
         },
         "conversion_rate": {
             "metric": "リード→商談 転換率",
             "unit": "%",
-            "tier_1_target": 25, "tier_2_target": 30, "tier_3_target": 35,
+            "tier_1_target": 25,
+            "tier_2_target": 30,
+            "tier_3_target": 35,
         },
         "deal_close_rate": {
             "metric": "商談→成約 転換率",
             "unit": "%",
-            "tier_1_target": 25, "tier_2_target": 30, "tier_3_target": 40,
+            "tier_1_target": 25,
+            "tier_2_target": 30,
+            "tier_3_target": 40,
         },
         "average_deal_size": {
             "metric": "平均取引額",
             "unit": "円",
-            "tier_1_target": 100000, "tier_2_target": 500000, "tier_3_target": 2000000,
+            "tier_1_target": 100000,
+            "tier_2_target": 500000,
+            "tier_3_target": 2000000,
         },
     }
 
@@ -197,7 +209,7 @@ next_month_strategy:
         system = self._system_prompt()
         prompt = f"""以下のコンテンツデータから {pattern_type} パターンを抽出してください。
 
-# {'上位' if pattern_type == 'winning' else '下位'} 20% サンプル ({sample_size}件)
+# {"上位" if pattern_type == "winning" else "下位"} 20% サンプル ({sample_size}件)
 {json.dumps(sample, ensure_ascii=False, indent=2)}
 
 # 全体件数

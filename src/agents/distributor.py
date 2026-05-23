@@ -3,7 +3,7 @@
 import json
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -140,7 +140,7 @@ class Distributor(BaseAgent):
             distribution_id=self._generate_id(),
             status="ready_for_api_call",
             platform=platform,
-            actual_delivery_time=datetime.now(timezone.utc).isoformat(),
+            actual_delivery_time=datetime.now(UTC).isoformat(),
             api_response={
                 "note": "Stub implementation. Actual API call requires customer OAuth credentials.",
                 "platform": platform,
@@ -176,7 +176,7 @@ class Distributor(BaseAgent):
             distribution_id=self._generate_id(),
             status="ready_for_smtp",
             platform="email",
-            actual_delivery_time=datetime.now(timezone.utc).isoformat(),
+            actual_delivery_time=datetime.now(UTC).isoformat(),
             api_response={
                 "note": "Stub. Requires SMTP/Gmail API credentials.",
                 "email": compliant_email,
@@ -215,9 +215,7 @@ class Distributor(BaseAgent):
         )
         return f"{now.date().isoformat()}T{slots[0]}:00"
 
-    def _check_platform_compliance(
-        self, platform: str, content: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _check_platform_compliance(self, platform: str, content: dict[str, Any]) -> dict[str, Any]:
         """Check content against platform rules."""
         violations = []
 
@@ -251,14 +249,14 @@ class Distributor(BaseAgent):
             "to": recipient.get("email", ""),
             "from": sender_info.get("address", ""),
             "subject": content.get("subject", ""),
-            "body": f"""{content.get('body', '')}
+            "body": f"""{content.get("body", "")}
 
 ---
-{sender_info.get('company_name', '')}
-{sender_info.get('address', '')}
-{sender_info.get('phone', '')}
+{sender_info.get("company_name", "")}
+{sender_info.get("address", "")}
+{sender_info.get("phone", "")}
 
-このメールは {recipient.get('email', '')} 宛に送信されています。
+このメールは {recipient.get("email", "")} 宛に送信されています。
 今後配信を希望されない場合は、以下のリンクから解除可能です:
 {unsubscribe_url}
 """,
@@ -269,13 +267,15 @@ class Distributor(BaseAgent):
 
     def _generate_id(self) -> str:
         """Generate a unique distribution ID."""
-        return f"dist_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{int(time.time() * 1000) % 10000:04d}"
+        return (
+            f"dist_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{int(time.time() * 1000) % 10000:04d}"
+        )
 
     def _log(self, result: DistributionResult, context: dict[str, Any]) -> None:
         """Log the distribution attempt."""
         log_file = self.log_dir / f"{datetime.now().strftime('%Y-%m-%d')}.jsonl"
         entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "distribution_id": result.distribution_id,
             "status": result.status,
             "platform": result.platform,

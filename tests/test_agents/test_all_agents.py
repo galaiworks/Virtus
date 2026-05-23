@@ -1,22 +1,17 @@
 """Tests for all 8 Virtus agents and orchestrator."""
 
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from src.agents import (
     Analyst,
     BaseAgent,
     Connector,
-    Designer,
     Distributor,
     Drafter,
     Guardian,
     LeadStrategist,
     Researcher,
 )
-from src.agents.guardian import Evaluation, Violation
-
 
 BRAND_DNA = {
     "identity": {"name": "TestBrand"},
@@ -53,9 +48,7 @@ class TestBaseAgent:
             def execute(self, task):
                 return {}
 
-        agent = TestAgent(
-            api_key="test", model="claude-sonnet-4-6", brand_dna=BRAND_DNA
-        )
+        agent = TestAgent(api_key="test", model="claude-sonnet-4-6", brand_dna=BRAND_DNA)
         assert agent.get_brand_colors() == ["#1a1a2e", "#eaeaea"]
 
     def test_brand_fonts(self) -> None:
@@ -63,9 +56,7 @@ class TestBaseAgent:
             def execute(self, task):
                 return {}
 
-        agent = TestAgent(
-            api_key="test", model="claude-sonnet-4-6", brand_dna=BRAND_DNA
-        )
+        agent = TestAgent(api_key="test", model="claude-sonnet-4-6", brand_dna=BRAND_DNA)
         assert agent.get_brand_fonts()["heading"] == "Noto Sans JP"
 
 
@@ -107,10 +98,12 @@ class TestLeadStrategist:
         ls.call_llm = MagicMock(
             return_value="おはようございます、TestBrand さん。\n【今日の優先事項】\n1. ..."
         )
-        result = ls.execute({
-            "task_type": "morning_brief",
-            "context": {"current_date": "2026-05-23"},
-        })
+        result = ls.execute(
+            {
+                "task_type": "morning_brief",
+                "context": {"current_date": "2026-05-23"},
+            }
+        )
         assert result["success"] is True
         assert "TestBrand" in result["output"]["content"]
 
@@ -147,9 +140,7 @@ class TestGuardian:
 
     def test_critical_violation_short_circuits(self) -> None:
         guardian = Guardian(api_key="test", brand_dna=BRAND_DNA)
-        result = guardian.evaluate(
-            "営業メール本文だけ。送信者情報なし。", "outreach_email"
-        )
+        result = guardian.evaluate("営業メール本文だけ。送信者情報なし。", "outreach_email")
         assert result.verdict == "CRITICAL_VIOLATION"
         assert result.total_score == 0
 
@@ -176,10 +167,12 @@ class TestDistributor:
 
     def test_unapproved_content_rejected(self, tmp_path) -> None:
         dist = Distributor(api_key="test", brand_dna=BRAND_DNA, log_dir=tmp_path)
-        result = dist.execute({
-            "task_type": "schedule_post",
-            "context": {"approval_status": "pending"},
-        })
+        result = dist.execute(
+            {
+                "task_type": "schedule_post",
+                "context": {"approval_status": "pending"},
+            }
+        )
         assert "error" in result
 
     def test_compliance_x_length_check(self, tmp_path) -> None:
@@ -190,10 +183,12 @@ class TestDistributor:
 
     def test_optimal_time_calculation(self, tmp_path) -> None:
         dist = Distributor(api_key="test", brand_dna=BRAND_DNA, log_dir=tmp_path)
-        result = dist.execute({
-            "task_type": "calculate_optimal_time",
-            "context": {"platform": "x"},
-        })
+        result = dist.execute(
+            {
+                "task_type": "calculate_optimal_time",
+                "context": {"platform": "x"},
+            }
+        )
         assert result["success"]
         assert "optimal_time" in result["output"]
 
@@ -233,18 +228,22 @@ class TestConnector:
 
     def test_dm_with_escalation(self) -> None:
         conn = Connector(api_key="test", brand_dna=BRAND_DNA)
-        result = conn.draft_dm_reply({
-            "incoming_message": {"text": "弁護士を立てます"},
-            "sender_profile": {},
-        })
+        result = conn.draft_dm_reply(
+            {
+                "incoming_message": {"text": "弁護士を立てます"},
+                "sender_profile": {},
+            }
+        )
         assert result["output"]["escalation_required"] is True
 
     def test_follow_up_sequence(self) -> None:
         conn = Connector(api_key="test", brand_dna=BRAND_DNA)
-        result = conn.execute({
-            "task_type": "plan_follow_up",
-            "context": {"sequence_type": "post_meeting"},
-        })
+        result = conn.execute(
+            {
+                "task_type": "plan_follow_up",
+                "context": {"sequence_type": "post_meeting"},
+            }
+        )
         actions = result["output"]["actions"]
         assert len(actions) == 4
         assert actions[0]["action"] == "thank_you"
@@ -259,16 +258,18 @@ class TestAnalyst:
 
     def test_kpi_dashboard(self) -> None:
         analyst = Analyst(api_key="test", brand_dna=BRAND_DNA)
-        result = analyst.execute({
-            "task_type": "kpi_dashboard",
-            "context": {
-                "current_metrics": {
-                    "content_volume": 35,
-                    "lead_acquisition": 22,
+        result = analyst.execute(
+            {
+                "task_type": "kpi_dashboard",
+                "context": {
+                    "current_metrics": {
+                        "content_volume": 35,
+                        "lead_acquisition": 22,
+                    },
+                    "tier": 1,
                 },
-                "tier": 1,
-            },
-        })
+            }
+        )
         assert result["success"]
         kpis = result["output"]["kpis"]
         assert kpis["content_volume"]["status"] == "達成"

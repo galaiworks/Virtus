@@ -102,7 +102,7 @@
 
 - [ ] **統合テスト** - エージェント間連携
 - [ ] **E2E テスト** - 1日のワークフロー全体
-- [ ] **CI 設定** - GitHub Actions（pytest、ruff、mypy）
+- [x] **CI 設定** - GitHub Actions（pytest、ruff、mypy）`.github/workflows/ci.yml`
 - [ ] **カバレッジ目標** - 80% 以上
 
 ---

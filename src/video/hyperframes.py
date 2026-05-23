@@ -1,6 +1,5 @@
 """HyperFrames integration for Virtus video generation."""
 
-import json
 import subprocess
 import tempfile
 from dataclasses import dataclass

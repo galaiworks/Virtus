@@ -2,11 +2,12 @@
 
 import json
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
-from .base import BaseAgent
 from ..skills import format_brand_dna
+from .base import BaseAgent
 
 
 @dataclass
@@ -49,9 +50,17 @@ class Guardian(BaseAgent):
     MAX_RETRIES = 3
 
     EXCESSIVE_CLAIMS = [
-        "100%", "絶対", "必ず", "完全", "誰でも稼げる",
-        "業界No.1", "業界トップ", "世界最高", "日本一",
-        "魔法のような", "夢のような",
+        "100%",
+        "絶対",
+        "必ず",
+        "完全",
+        "誰でも稼げる",
+        "業界No.1",
+        "業界トップ",
+        "世界最高",
+        "日本一",
+        "魔法のような",
+        "夢のような",
     ]
 
     EVALUATION_WEIGHTS = {
@@ -199,9 +208,7 @@ class Guardian(BaseAgent):
             "history": [self._evaluation_to_dict(e) for e in history],
         }
 
-    def _check_legal_compliance(
-        self, content: str, content_type: str
-    ) -> list[Violation]:
+    def _check_legal_compliance(self, content: str, content_type: str) -> list[Violation]:
         """Check legal compliance."""
         violations = []
 
@@ -276,7 +283,7 @@ class Guardian(BaseAgent):
 {json.dumps(weights, ensure_ascii=False, indent=2)}
 
 # 既に検出された違反
-{json.dumps([{'severity': v.severity, 'category': v.category, 'desc': v.description} for v in existing_violations], ensure_ascii=False, indent=2)}
+{json.dumps([{"severity": v.severity, "category": v.category, "desc": v.description} for v in existing_violations], ensure_ascii=False, indent=2)}
 
 # 重要原則
 第一に、95点未満は絶対に APPROVED しない。

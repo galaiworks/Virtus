@@ -1,8 +1,9 @@
 """Virtus Scheduler - cron-style task scheduling."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
-from typing import Any, Callable
+from typing import Any
 
 
 @dataclass
@@ -56,9 +57,10 @@ class Scheduler:
             if task.weekday_only and now.weekday() >= 5:
                 continue
             target_time = time(task.hour, task.minute)
-            if now.time() >= target_time:
-                if task.last_run is None or task.last_run.date() < now.date():
-                    due.append(task)
+            if now.time() >= target_time and (
+                task.last_run is None or task.last_run.date() < now.date()
+            ):
+                due.append(task)
         return due
 
     def run_due_tasks(self, now: datetime | None = None) -> list[dict[str, Any]]:
@@ -69,17 +71,21 @@ class Scheduler:
             try:
                 output = task.callback()
                 task.last_run = now
-                results.append({
-                    "task": task.name,
-                    "success": True,
-                    "output": output,
-                })
+                results.append(
+                    {
+                        "task": task.name,
+                        "success": True,
+                        "output": output,
+                    }
+                )
             except Exception as e:
-                results.append({
-                    "task": task.name,
-                    "success": False,
-                    "error": str(e),
-                })
+                results.append(
+                    {
+                        "task": task.name,
+                        "success": False,
+                        "error": str(e),
+                    }
+                )
         return results
 
     def next_run(self, task_name: str, now: datetime | None = None) -> datetime | None:
@@ -129,9 +135,11 @@ def build_default_scheduler(orchestrator: Any) -> Scheduler:
         name="morning_brief",
         hour=7,
         minute=0,
-        callback=lambda: orchestrator.morning_brief({
-            "current_date": datetime.now().date().isoformat(),
-        }),
+        callback=lambda: orchestrator.morning_brief(
+            {
+                "current_date": datetime.now().date().isoformat(),
+            }
+        ),
         description="毎朝7時の朝報生成",
     )
 
@@ -139,10 +147,12 @@ def build_default_scheduler(orchestrator: Any) -> Scheduler:
         name="weekly_review",
         hour=9,
         minute=0,
-        callback=lambda: orchestrator.lead_strategist.execute({
-            "task_type": "weekly_review",
-            "context": {},
-        }),
+        callback=lambda: orchestrator.lead_strategist.execute(
+            {
+                "task_type": "weekly_review",
+                "context": {},
+            }
+        ),
         weekday_only=True,
         description="毎週月曜9時の週次レビュー（手動でstartingDateを指定）",
     )

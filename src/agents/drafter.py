@@ -4,8 +4,8 @@ import json
 import re
 from typing import Any
 
-from .base import BaseAgent
 from ..skills import SkillLoader, format_brand_dna
+from .base import BaseAgent
 
 
 class Drafter(BaseAgent):
@@ -324,9 +324,7 @@ DREAM WRITING の三層ニーズ分析を反映。
             "output": {"script": response},
         }
 
-    def write_generic(
-        self, task_type: str, context: dict[str, Any]
-    ) -> dict[str, Any]:
+    def write_generic(self, task_type: str, context: dict[str, Any]) -> dict[str, Any]:
         """Generic writing fallback."""
         prompt_text = context.get("prompt", "")
         if not prompt_text:

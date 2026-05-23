@@ -3,8 +3,8 @@
 import json
 from typing import Any
 
-from .base import BaseAgent
 from ..skills import format_brand_dna
+from .base import BaseAgent
 
 
 class Researcher(BaseAgent):
@@ -49,7 +49,7 @@ class Researcher(BaseAgent):
         prompt = f"""以下のソース資料から、業界トレンドを抽出してください。
 
 # 対象キーワード
-{', '.join(target_keywords)}
+{", ".join(target_keywords)}
 
 # 期間
 {period}
@@ -94,7 +94,7 @@ class Researcher(BaseAgent):
         prompt = f"""競合の動きを分析してください。
 
 # 競合リスト
-{', '.join(competitors)}
+{", ".join(competitors)}
 
 # ソース資料（プレスリリース、SNS投稿、ニュース等）
 {json.dumps(source_materials, ensure_ascii=False, indent=2)}
@@ -140,10 +140,10 @@ class Researcher(BaseAgent):
         prompt = f"""SEO キーワード戦略を提案してください。
 
 # シードキーワード
-{', '.join(seed_keywords)}
+{", ".join(seed_keywords)}
 
 # 既存コンテンツのトピック
-{', '.join(existing_content_topics)}
+{", ".join(existing_content_topics)}
 
 # 出力形式（JSON）
 {{
@@ -226,10 +226,10 @@ class Researcher(BaseAgent):
 {brand_dna_text}
 
 # 対象キーワード
-{', '.join(keywords)}
+{", ".join(keywords)}
 
 # 競合リスト
-{', '.join(competitors)}
+{", ".join(competitors)}
 
 # 守るべき原則
 
