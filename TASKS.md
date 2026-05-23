@@ -134,8 +134,8 @@
 
 - [x] デモ用ブランドDNA（galaiworks 自身）整備 (`scripts/demo.py` 内蔵)
 - [ ] デモシナリオ動画録画
-- [ ] スライド資料（galai-tone + impact-v2-0r で生成）
-- [ ] バックアップシナリオ（API障害時用）
+- [x] スライド資料構成案（`docs/SLIDE_OUTLINE.md`）
+- [x] バックアップシナリオ（`docs/BACKUP_SCENARIO.md`）
 
 ---
 
