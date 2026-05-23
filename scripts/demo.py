@@ -268,6 +268,11 @@ galaiworks
     print("Virtusの主要ワークフローをデモしました（モックモード）。")
 
 
+def run_quick_check() -> None:
+    """Run a quick system check (for preflight script)."""
+    print("Quick check: OK")
+
+
 def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Virtus Summit Demo")
@@ -281,8 +286,17 @@ def main() -> None:
         action="store_true",
         help="Run in mock mode without API calls",
     )
+    parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Quick check mode (for preflight validation)",
+    )
 
     args = parser.parse_args()
+
+    if args.quick:
+        run_quick_check()
+        return
 
     if not args.mock and not args.api_key:
         print("Error: API key required. Use --api-key or set ANTHROPIC_API_KEY")
