@@ -206,6 +206,7 @@ class Guardian(BaseAgent):
             "content": current_content,
             "evaluation": self._evaluation_to_dict(final) if final else None,
             "history": [self._evaluation_to_dict(e) for e in history],
+            "retry_count": retry_count,
         }
 
     def _check_legal_compliance(self, content: str, content_type: str) -> list[Violation]:

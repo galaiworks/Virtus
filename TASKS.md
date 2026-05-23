@@ -101,9 +101,9 @@
 ## テスト・品質
 
 - [x] **統合テスト** - エージェント間連携 (`tests/test_integration.py`)
-- [ ] **E2E テスト** - 1日のワークフロー全体
+- [x] **E2E テスト** - 1日のワークフロー全体 (`tests/test_e2e.py` - 7テスト)
 - [x] **CI 設定** - GitHub Actions（pytest、ruff、mypy）`.github/workflows/ci.yml`
-- [ ] **カバレッジ目標** - 80% 以上（現在推定 72%、98テスト）
+- [ ] **カバレッジ目標** - 80% 以上（現在推定 74%、105テスト）
 
 ---
 
