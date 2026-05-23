@@ -132,7 +132,7 @@
 5. （Distributor は手動承認後配信）
 ```
 
-- [ ] デモ用ブランドDNA（galaiworks 自身）整備
+- [x] デモ用ブランドDNA（galaiworks 自身）整備 (`scripts/demo.py` 内蔵)
 - [ ] デモシナリオ動画録画
 - [ ] スライド資料（galai-tone + impact-v2-0r で生成）
 - [ ] バックアップシナリオ（API障害時用）
