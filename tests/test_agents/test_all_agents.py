@@ -85,6 +85,95 @@ class TestDrafter:
         result = drafter.execute({"task_type": "unknown_type", "context": {}})
         assert result["success"] is False
 
+    def test_write_note_article(self) -> None:
+        drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
+        drafter.call_llm = MagicMock(
+            return_value='{"title": "AIの未来", "content": "AIは...", "summary": "要約"}'
+        )
+        result = drafter.execute(
+            {
+                "task_type": "note_article",
+                "context": {"topic": "AIの未来", "target_length": 2000},
+            }
+        )
+        assert result["success"] is True
+        assert "title" in result["output"]
+
+    def test_write_x_post(self) -> None:
+        drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
+        drafter.call_llm = MagicMock(
+            return_value='[{"text": "テスト投稿", "hashtags": ["#AI"]}]'
+        )
+        result = drafter.execute(
+            {
+                "task_type": "x_post",
+                "context": {"topic": "AI活用", "thread_length": 1},
+            }
+        )
+        assert result["success"] is True
+
+    def test_write_outreach_email(self) -> None:
+        drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
+        drafter.call_llm = MagicMock(
+            return_value='{"subject": "件名", "body": "本文", "cta": "アクション"}'
+        )
+        result = drafter.execute(
+            {
+                "task_type": "outreach_email",
+                "context": {"recipient_profile": {}, "purpose": "初回アプローチ"},
+            }
+        )
+        assert result["success"] is True
+        assert "subject" in result["output"]
+
+    def test_write_proposal(self) -> None:
+        drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
+        drafter.call_llm = MagicMock(
+            return_value='{"title": "提案書", "sections": [{"title": "概要", "content": "..."}]}'
+        )
+        result = drafter.execute(
+            {
+                "task_type": "proposal",
+                "context": {"client_name": "テスト社", "problem": "課題"},
+            }
+        )
+        assert result["success"] is True
+
+    def test_write_instagram_carousel(self) -> None:
+        drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
+        drafter.call_llm = MagicMock(
+            return_value='{"slides": [{"title": "スライド1", "content": "内容"}]}'
+        )
+        result = drafter.execute(
+            {
+                "task_type": "instagram_carousel",
+                "context": {"topic": "AI入門", "slide_count": 5},
+            }
+        )
+        assert result["success"] is True
+
+    def test_write_youtube_script(self) -> None:
+        drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
+        drafter.call_llm = MagicMock(
+            return_value='{"title": "動画タイトル", "script": "台本...", "hook": "フック"}'
+        )
+        result = drafter.execute(
+            {
+                "task_type": "youtube_script",
+                "context": {"topic": "AI解説", "target_duration": 600},
+            }
+        )
+        assert result["success"] is True
+
+    def test_refine(self) -> None:
+        drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
+        drafter.call_llm = MagicMock(return_value="改善されたコンテンツ")
+        result = drafter.refine(
+            content="元のコンテンツ",
+            feedback="もっと具体的にしてください",
+        )
+        assert result == "改善されたコンテンツ"
+
 
 class TestLeadStrategist:
     """Tests for LeadStrategist."""
@@ -106,6 +195,71 @@ class TestLeadStrategist:
         )
         assert result["success"] is True
         assert "TestBrand" in result["output"]["content"]
+
+    def test_weekly_review(self) -> None:
+        ls = LeadStrategist(api_key="test", brand_dna=BRAND_DNA)
+        ls.call_llm = MagicMock(
+            return_value="【先週の成果】\n- リード獲得: 10件\n【勝ちパターン】\n..."
+        )
+        result = ls.execute(
+            {
+                "task_type": "weekly_review",
+                "context": {
+                    "week_data": {"leads": 10, "content": 5},
+                    "previous_week_data": {"leads": 8, "content": 4},
+                },
+            }
+        )
+        assert result["success"] is True
+        assert result["task_type"] == "weekly_review"
+
+    def test_monthly_review(self) -> None:
+        ls = LeadStrategist(api_key="test", brand_dna=BRAND_DNA)
+        ls.call_llm = MagicMock(
+            return_value="# 月次レビュー\n## KPI達成状況\n..."
+        )
+        result = ls.execute(
+            {
+                "task_type": "monthly_review",
+                "context": {
+                    "month_data": {"leads": 40, "conversions": 5},
+                    "targets": {"leads": 50, "conversions": 4},
+                },
+            }
+        )
+        assert result["success"] is True
+        assert result["task_type"] == "monthly_review"
+
+    def test_delegate_task(self) -> None:
+        ls = LeadStrategist(api_key="test", brand_dna=BRAND_DNA)
+        ls.call_llm = MagicMock(
+            return_value='{"delegations": [{"agent": "Drafter", "task_type": "note_article"}], "execution_order": ["Drafter"]}'
+        )
+        result = ls.execute(
+            {
+                "task_type": "delegate_task",
+                "context": {"goal": "AIエージェントについての記事を書く"},
+            }
+        )
+        assert result["success"] is True
+        assert "delegations" in result["output"]
+
+    def test_delegate_task_invalid_json(self) -> None:
+        ls = LeadStrategist(api_key="test", brand_dna=BRAND_DNA)
+        ls.call_llm = MagicMock(return_value="{invalid json syntax")
+        result = ls.execute(
+            {
+                "task_type": "delegate_task",
+                "context": {"goal": "テスト"},
+            }
+        )
+        assert result["success"] is True
+        assert "raw_response" in result["output"]
+
+    def test_unknown_task_type(self) -> None:
+        ls = LeadStrategist(api_key="test", brand_dna=BRAND_DNA)
+        result = ls.execute({"task_type": "unknown_type", "context": {}})
+        assert "error" in result
 
 
 class TestGuardian:
@@ -157,6 +311,99 @@ class TestResearcher:
         result = researcher.execute({"task_type": "unknown", "context": {}})
         assert "error" in result
 
+    def test_trend_research(self) -> None:
+        researcher = Researcher(api_key="test", brand_dna=BRAND_DNA)
+        researcher.call_llm = MagicMock(
+            return_value="【業界トレンド】\n1. AIエージェント\n- 概要: ..."
+        )
+        result = researcher.execute(
+            {
+                "task_type": "trend_research",
+                "context": {
+                    "target_keywords": ["AI", "エージェント"],
+                    "source_materials": [{"url": "https://example.com", "content": "test"}],
+                    "period": "直近7日",
+                },
+            }
+        )
+        assert result["success"] is True
+        assert result["output"]["period"] == "直近7日"
+
+    def test_competitor_watch(self) -> None:
+        researcher = Researcher(api_key="test", brand_dna=BRAND_DNA)
+        researcher.call_llm = MagicMock(
+            return_value='{"competitor_moves": [{"competitor": "A社", "move": "新製品"}], "strategic_implications": "対策必要"}'
+        )
+        result = researcher.execute(
+            {
+                "task_type": "competitor_watch",
+                "context": {
+                    "competitors": ["A社", "B社"],
+                    "source_materials": [{"url": "https://example.com"}],
+                },
+            }
+        )
+        assert result["success"] is True
+        assert "competitor_moves" in result["output"]
+
+    def test_competitor_watch_invalid_json(self) -> None:
+        researcher = Researcher(api_key="test", brand_dna=BRAND_DNA)
+        researcher.call_llm = MagicMock(return_value="不正なJSONレスポンス")
+        result = researcher.execute(
+            {
+                "task_type": "competitor_watch",
+                "context": {"competitors": ["A社"]},
+            }
+        )
+        assert result["success"] is True
+        assert "raw" in result["output"]
+
+    def test_keyword_research(self) -> None:
+        researcher = Researcher(api_key="test", brand_dna=BRAND_DNA)
+        researcher.call_llm = MagicMock(
+            return_value='{"keyword_opportunities": [{"keyword": "AI活用"}], "topic_clusters": []}'
+        )
+        result = researcher.execute(
+            {
+                "task_type": "keyword_research",
+                "context": {
+                    "seed_keywords": ["AI", "自動化"],
+                    "existing_topics": ["マーケティング"],
+                },
+            }
+        )
+        assert result["success"] is True
+        assert "keyword_opportunities" in result["output"]
+
+    def test_keyword_research_invalid_json(self) -> None:
+        researcher = Researcher(api_key="test", brand_dna=BRAND_DNA)
+        researcher.call_llm = MagicMock(return_value="invalid json")
+        result = researcher.execute(
+            {
+                "task_type": "keyword_research",
+                "context": {"seed_keywords": ["test"]},
+            }
+        )
+        assert result["success"] is True
+        assert "raw" in result["output"]
+
+    def test_summarize_sources(self) -> None:
+        researcher = Researcher(api_key="test", brand_dna=BRAND_DNA)
+        researcher.call_llm = MagicMock(
+            return_value="# ソース要約\n## 1. Example\n- 要点: ..."
+        )
+        result = researcher.execute(
+            {
+                "task_type": "summarize_sources",
+                "context": {
+                    "sources": [{"url": "https://example.com", "content": "test"}],
+                    "focus": "AIトレンド",
+                },
+            }
+        )
+        assert result["success"] is True
+        assert "content" in result["output"]
+
 
 class TestDistributor:
     """Tests for Distributor."""
@@ -201,6 +448,47 @@ class TestDistributor:
         )
         assert "解除" in email["body"]
         assert "List-Unsubscribe" in email["headers"]
+
+    def test_schedule_post_approved(self, tmp_path) -> None:
+        dist = Distributor(api_key="test", brand_dna=BRAND_DNA, log_dir=tmp_path)
+        result = dist.execute(
+            {
+                "task_type": "schedule_post",
+                "context": {
+                    "approval_status": "approved",
+                    "platform": "note",
+                    "content": {"title": "記事", "body": "本文"},
+                    "scheduled_time": "2026-05-24T09:00:00+09:00",
+                },
+            }
+        )
+        assert result["success"] is True
+        assert "scheduled" in result["output"]["status"]
+
+    def test_compliance_note_check_passed(self, tmp_path) -> None:
+        dist = Distributor(api_key="test", brand_dna=BRAND_DNA, log_dir=tmp_path)
+        result = dist._check_platform_compliance("note", {"body": "短い本文"})
+        assert result["passed"]
+
+    def test_compliance_instagram_too_many_hashtags(self, tmp_path) -> None:
+        dist = Distributor(api_key="test", brand_dna=BRAND_DNA, log_dir=tmp_path)
+        hashtags = [f"#tag{i}" for i in range(35)]
+        result = dist._check_platform_compliance(
+            "instagram", {"caption": "素敵な写真", "hashtags": hashtags}
+        )
+        assert not result["passed"]
+
+    def test_compliance_spam_pattern(self, tmp_path) -> None:
+        dist = Distributor(api_key="test", brand_dna=BRAND_DNA, log_dir=tmp_path)
+        result = dist._check_platform_compliance(
+            "x", {"text": "フォローお願いします follow for follow"}
+        )
+        assert not result["passed"]
+
+    def test_unknown_task_type(self, tmp_path) -> None:
+        dist = Distributor(api_key="test", brand_dna=BRAND_DNA, log_dir=tmp_path)
+        result = dist.execute({"task_type": "unknown", "context": {}})
+        assert "error" in result
 
 
 class TestConnector:
@@ -248,6 +536,64 @@ class TestConnector:
         assert len(actions) == 4
         assert actions[0]["action"] == "thank_you"
 
+    def test_dm_reply_normal(self) -> None:
+        conn = Connector(api_key="test", brand_dna=BRAND_DNA)
+        conn.call_llm = MagicMock(
+            return_value='{"reply_draft": {"message": "ご連絡ありがとうございます!"}, "flag_for_attention": false}'
+        )
+        result = conn.execute(
+            {
+                "task_type": "draft_dm_reply",
+                "context": {
+                    "incoming_message": {"text": "サービスについて教えてください"},
+                    "sender_profile": {"name": "テストユーザー"},
+                },
+            }
+        )
+        assert result["success"] is True
+        assert "reply_draft" in result["output"]
+
+    def test_comment_reply(self) -> None:
+        conn = Connector(api_key="test", brand_dna=BRAND_DNA)
+        conn.call_llm = MagicMock(return_value="コメントありがとうございます!")
+        result = conn.execute(
+            {
+                "task_type": "draft_comment_reply",
+                "context": {
+                    "comment": {"text": "素晴らしい記事ですね"},
+                    "post_context": {"title": "AI活用術"},
+                },
+            }
+        )
+        assert result["success"] is True
+
+    def test_follow_up_post_purchase(self) -> None:
+        conn = Connector(api_key="test", brand_dna=BRAND_DNA)
+        result = conn.execute(
+            {
+                "task_type": "plan_follow_up",
+                "context": {"sequence_type": "post_purchase"},
+            }
+        )
+        actions = result["output"]["actions"]
+        assert any(a["action"] == "onboarding_help" for a in actions)
+
+    def test_follow_up_no_reply(self) -> None:
+        conn = Connector(api_key="test", brand_dna=BRAND_DNA)
+        result = conn.execute(
+            {
+                "task_type": "plan_follow_up",
+                "context": {"sequence_type": "no_reply_first_outreach"},
+            }
+        )
+        actions = result["output"]["actions"]
+        assert any(a["action"] == "soft_reminder" for a in actions)
+
+    def test_unknown_task_type(self) -> None:
+        conn = Connector(api_key="test", brand_dna=BRAND_DNA)
+        result = conn.execute({"task_type": "unknown", "context": {}})
+        assert "error" in result
+
 
 class TestAnalyst:
     """Tests for Analyst."""
@@ -281,6 +627,59 @@ class TestAnalyst:
         assert analyst._kpi_status(85) == "順調"
         assert analyst._kpi_status(60) == "要注意"
         assert analyst._kpi_status(30) == "未達"
+
+    def test_weekly_summary(self) -> None:
+        analyst = Analyst(api_key="test", brand_dna=BRAND_DNA)
+        analyst.call_llm = MagicMock(
+            return_value="# 週次サマリー\n## パフォーマンス\n..."
+        )
+        result = analyst.execute(
+            {
+                "task_type": "weekly_summary",
+                "context": {
+                    "week_data": {"posts": 10, "engagement": 500},
+                },
+            }
+        )
+        assert result["success"] is True
+        assert "content" in result["output"]
+
+    def test_monthly_report(self) -> None:
+        analyst = Analyst(api_key="test", brand_dna=BRAND_DNA)
+        analyst.call_llm = MagicMock(
+            return_value="# 月次レポート\n## 概要\n..."
+        )
+        result = analyst.execute(
+            {
+                "task_type": "monthly_report",
+                "context": {
+                    "month_data": {"leads": 50, "conversions": 5},
+                    "previous_month_data": {"leads": 40, "conversions": 4},
+                },
+            }
+        )
+        assert result["success"] is True
+        assert "content" in result["output"]
+
+    def test_pattern_extraction(self) -> None:
+        analyst = Analyst(api_key="test", brand_dna=BRAND_DNA)
+        analyst.call_llm = MagicMock(
+            return_value='{"patterns": [{"pattern": "朝投稿が反応良い"}], "recommendations": ["7時投稿を継続"]}'
+        )
+        result = analyst.execute(
+            {
+                "task_type": "pattern_extraction",
+                "context": {
+                    "content_data": [{"title": "記事1", "engagement": 100}],
+                },
+            }
+        )
+        assert result["success"] is True
+
+    def test_unknown_task_type(self) -> None:
+        analyst = Analyst(api_key="test", brand_dna=BRAND_DNA)
+        result = analyst.execute({"task_type": "unknown", "context": {}})
+        assert "error" in result
 
 
 class TestOrchestrator:
@@ -328,6 +727,43 @@ class TestScheduler:
         tasks = scheduler.list_tasks()
         assert tasks[0]["schedule"] == "07:00"
         assert tasks[0]["description"] == "朝報"
+
+    def test_weekday_only_task(self) -> None:
+        from src.scheduler import Scheduler
+
+        scheduler = Scheduler()
+        scheduler.add_task("weekday_task", 9, 0, lambda: "ok", weekday_only=True)
+        task = scheduler.tasks[0]
+        assert task.weekday_only is True
+
+    def test_build_default_scheduler(self) -> None:
+        from src.orchestrator import Orchestrator
+        from src.scheduler import build_default_scheduler
+
+        orchestrator = Orchestrator(api_key="test", brand_dna=BRAND_DNA)
+        scheduler = build_default_scheduler(orchestrator)
+        task_names = [t.name for t in scheduler.tasks]
+        assert "morning_brief" in task_names
+
+    def test_get_due_tasks(self) -> None:
+        from datetime import datetime
+
+        from src.scheduler import Scheduler
+
+        scheduler = Scheduler()
+        scheduler.add_task("test", 7, 0, lambda: "result")
+        due = scheduler.get_due_tasks(datetime(2026, 5, 23, 8, 0, 0))
+        assert len(due) == 1
+
+    def test_next_run(self) -> None:
+        from datetime import datetime
+
+        from src.scheduler import Scheduler
+
+        scheduler = Scheduler()
+        scheduler.add_task("test", 7, 0, lambda: "result")
+        next_time = scheduler.next_run("test", datetime(2026, 5, 23, 6, 0, 0))
+        assert next_time.hour == 7
 
 
 class TestSkillLoader:

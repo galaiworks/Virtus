@@ -103,15 +103,15 @@
 - [x] **統合テスト** - エージェント間連携 (`tests/test_integration.py`)
 - [x] **E2E テスト** - 1日のワークフロー全体 (`tests/test_e2e.py` - 7テスト)
 - [x] **CI 設定** - GitHub Actions（pytest、ruff、mypy）`.github/workflows/ci.yml`
-- [ ] **カバレッジ目標** - 80% 以上（現在推定 74%、105テスト）
+- [x] **カバレッジ目標** - 80% 以上（**83%達成**、141テスト）
 
 ---
 
 ## ドキュメント
 
 - [x] **README.md** - プロジェクト概要、クイックスタート（更新済み）
-- [ ] **CONTRIBUTING.md** - 開発参加ガイド
-- [ ] **API.md** - 各エージェントの API リファレンス
+- [x] **CONTRIBUTING.md** - 開発参加ガイド
+- [x] **API.md** - 各エージェントの API リファレンス
 - [x] **DEMO.md** - サミットデモ手順書
 
 ---
