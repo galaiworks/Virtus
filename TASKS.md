@@ -12,7 +12,7 @@
 |---------|------|
 | エージェント実装 | **8/8 完了** |
 | 独自スキル統合 | **3/3 完了**（Drafter経由） |
-| インフラ | **3/4 完了**（Orchestrator/Scheduler/Skills loader） |
+| インフラ | **4/4 完了**（Orchestrator/Scheduler/Skills loader/Brain層） |
 | サミットデモ | 4/5 |
 
 ---
@@ -73,11 +73,12 @@
   - `.claude/skills/` から自動読み込み
   - `format_brand_dna` でプロンプト整形
 
-- [ ] **Brain 層** (`brain/customers/{id}/`)
-  - ブランドDNA 保存
-  - 過去コンテンツ蓄積
-  - 学習データ管理
-  - `.gitignore` 必須
+- [x] **Brain 層** (`brain/customers/{id}/`, `src/brain.py`)
+  - ブランドDNA 保存 (`BrandDNA` dataclass)
+  - 過去コンテンツ蓄積 (`ContentRecord`, `list_content`)
+  - 学習データ管理 (`save_learning_data`, `load_learning_data`)
+  - 監査ログ (`append_log`, `read_logs`)
+  - `.gitignore` 設定済み
 
 - [ ] **オンボーディングフロー**
   - 30 問ヒアリング（brand-dna.md 参照）
