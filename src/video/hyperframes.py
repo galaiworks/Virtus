@@ -283,12 +283,17 @@ class HyperFramesClient:
         composition: Composition,
         output_name: str = "output",
     ) -> RenderResult:
-        """Render a composition to MP4."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            html_path = Path(tmpdir) / "index.html"
-            html_path.write_text(composition.html)
+        """Render a composition to MP4.
 
-            output_path = self.output_dir / f"{output_name}.mp4"
+        HyperFrames expects a project directory containing index.html.
+        We create one and invoke the CLI from inside it.
+        """
+        output_path = self.output_dir / f"{output_name}.mp4"
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_dir = Path(tmpdir)
+            html_path = project_dir / "index.html"
+            html_path.write_text(composition.html)
 
             try:
                 result = subprocess.run(
@@ -296,16 +301,10 @@ class HyperFramesClient:
                         "npx",
                         "hyperframes",
                         "render",
-                        str(html_path),
-                        "-o",
+                        "--output",
                         str(output_path),
-                        "--width",
-                        str(composition.width),
-                        "--height",
-                        str(composition.height),
-                        "--fps",
-                        str(composition.fps),
                     ],
+                    cwd=str(project_dir),
                     capture_output=True,
                     text=True,
                     timeout=300,
@@ -318,7 +317,7 @@ class HyperFramesClient:
                         width=composition.width,
                         height=composition.height,
                         success=False,
-                        error=result.stderr,
+                        error=result.stderr or result.stdout,
                     )
 
                 return RenderResult(
