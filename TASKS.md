@@ -10,10 +10,10 @@
 
 | カテゴリ | 進捗 |
 |---------|------|
-| エージェント実装 | 1/8（Designer 完了） |
-| 独自スキル | 0/3 |
-| インフラ | 0/4 |
-| サミットデモ | 1/5 |
+| エージェント実装 | **8/8 完了** |
+| 独自スキル統合 | **3/3 完了**（Drafter経由） |
+| インフラ | **3/4 完了**（Orchestrator/Scheduler/Skills loader） |
+| サミットデモ | 4/5 |
 
 ---
 
@@ -23,99 +23,55 @@
 
 | # | タスク | 担当 | 状態 | 期限 |
 |---|--------|------|------|------|
-| S1 | Drafter の Garai Tone 実装 | Drafter | 未着手 | 5/26 |
-| S2 | Lead Strategist の朝報生成 | Lead Strategist | 未着手 | 5/28 |
-| S3 | Guardian の 95 点ループ | Guardian | 未着手 | 5/30 |
-| S4 | オーケストレーター連携 | Orchestrator | 未着手 | 6/2 |
+| S1 | Drafter の Garai Tone 実装 | Drafter | **完了** | - |
+| S2 | Lead Strategist の朝報生成 | Lead Strategist | **完了** | - |
+| S3 | Guardian の 95 点ループ | Guardian | **完了** | - |
+| S4 | オーケストレーター連携 | Orchestrator | **完了** | - |
 | S5 | Designer 動画生成（PR #2） | Designer | **完了** | - |
 
 ---
 
 ## エージェント実装（8 体中 1 体完了）
 
-### 完了
+### 完了（全 8 体）
 
 - [x] **Designer** - HyperFrames + Video-Use 統合 ([PR #2](https://github.com/galaiworks/Virtus/pull/2))
-
-### 未着手
-
-- [ ] **Lead Strategist** - 戦略統括・オーケストレーター
-  - `claude-opus-4-7`
-  - 朝報生成（毎朝7時配信）
-  - 月次戦略書
-  - 各エージェントへのタスク振り分け
-
-- [ ] **Researcher** - 探索・調査
-  - `claude-sonnet-4-6`
-  - 業界動向調査
-  - 競合分析
-  - ※PRタイムズ機能は除外
-
-- [ ] **Drafter** - 全コンテンツ執筆
-  - `claude-sonnet-4-6`
-  - Garai Tone スキル統合
-  - DREAM WRITING フレームワーク
-  - IMPACT v2.0R 構造
-
-- [ ] **Distributor** - 配信処理
-  - `claude-haiku-4-5`
-  - X / note / Instagram 配信
-  - スケジュール配信
-  - 公式 API のみ使用
-
-- [ ] **Connector** - DM・関係構築
-  - `claude-sonnet-4-6`
-  - DM 返信
-  - エスカレーションキーワード検知
-  - 感情分析
-
-- [ ] **Analyst** - 分析・学習
-  - `claude-sonnet-4-6`
-  - 月次品質レビュー
-  - ブランドDNA改善提案
-  - エンゲージメント分析
-
-- [ ] **Guardian** - 品質保証
-  - `claude-opus-4-7`
-  - 95 点ループ実装
-  - 法令遵守チェック（compliance.md）
-  - エスカレーション判断
-  - 自己反省機構
+- [x] **Lead Strategist** - 朝報、週次/月次レビュー、タスク分配
+- [x] **Researcher** - トレンド調査、競合監視、SEO キーワード調査
+- [x] **Drafter** - note記事、X投稿、メール、提案書、カルーセル、YouTube台本（Garai Tone/DREAM/IMPACT 統合）
+- [x] **Distributor** - スケジュール配信、配信タイミング最適化、特定電子メール法準拠
+- [x] **Connector** - DM返信、コメント返信、エスカレーション検知、フォローアップ計画
+- [x] **Analyst** - 月次レポート、KPI ダッシュボード、パターン抽出
+- [x] **Guardian** - 95 点ループ、法令遵守チェック、自己反省機構
 
 ---
 
 ## 独自スキル（Skills）
 
-`.claude/skills/` 配下に SKILL.md として実装。
+`.claude/skills/` 配下に既存。`SkillLoader` 経由で Drafter に統合済み。
 
-- [ ] **Garai Tone** - galaiworks 独自執筆スタイル
-  - 「率直に言うと」「結論から言うと」等のシグネチャ
-  - プロフェッショナル × 親近感 × 直球
-  - 禁止表現フィルター
-
-- [ ] **DREAM WRITING** - 三層ニーズ分析 + 多段 CTA
-  - 顕在ニーズ / 潜在ニーズ / 願望
-  - ファネル検出
-  - ステップメール対応
-
-- [ ] **IMPACT v2.0R** - 6セクション構造
-  - Insight / Mechanism / Proof / Application / Conclusion / Transition
-  - 論理性と説得力の両立
+- [x] **Garai Tone** - galaiworks 独自執筆スタイル（Drafter システムプロンプトに自動注入）
+- [x] **DREAM WRITING** - 三層ニーズ分析 + 多段 CTA
+- [x] **IMPACT v2.0R** - 6セクション構造
 
 ---
 
 ## インフラ
 
-- [ ] **Orchestrator** (`src/orchestrator.py`)
+- [x] **Orchestrator** (`src/orchestrator.py`)
   - エージェント間連携
-  - タスクキュー管理
-  - リトライ・エスカレーション
-  - 95 点ループ統合
+  - `write_and_review` で Drafter ↔ Guardian 95点ループ
+  - `handle_incoming_message` で Connector + Guardian
+  - `full_content_pipeline` でマルチプラットフォーム
 
-- [ ] **Scheduler** (`src/scheduler.py`)
+- [x] **Scheduler** (`src/scheduler.py`)
   - 朝7時の朝報トリガー
-  - 配信スケジュール管理
-  - cron / APScheduler
+  - 平日のみ実行オプション
+  - `build_default_scheduler` でデフォルト構成
+
+- [x] **SkillLoader** (`src/skills.py`)
+  - `.claude/skills/` から自動読み込み
+  - `format_brand_dna` でプロンプト整形
 
 - [ ] **Brain 層** (`brain/customers/{id}/`)
   - ブランドDNA 保存
