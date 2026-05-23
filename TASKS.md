@@ -80,10 +80,10 @@
   - 監査ログ (`append_log`, `read_logs`)
   - `.gitignore` 設定済み
 
-- [ ] **オンボーディングフロー**
-  - 30 問ヒアリング（brand-dna.md 参照）
-  - 過去コンテンツ voice 分析
-  - brand-dna.yaml 自動生成
+- [x] **オンボーディングフロー** (`src/onboarding.py`)
+  - 30 問ヒアリング（`HEARING_QUESTIONS`）
+  - 過去コンテンツ voice 分析（`analyze_past_content`）
+  - brand-dna.yaml 自動生成（`generate_brand_dna`）
 
 ---
 
@@ -103,7 +103,7 @@
 - [x] **統合テスト** - エージェント間連携 (`tests/test_integration.py`)
 - [ ] **E2E テスト** - 1日のワークフロー全体
 - [x] **CI 設定** - GitHub Actions（pytest、ruff、mypy）`.github/workflows/ci.yml`
-- [ ] **カバレッジ目標** - 80% 以上（現在 69%、81テスト）
+- [ ] **カバレッジ目標** - 80% 以上（現在推定 72%、98テスト）
 
 ---
 
