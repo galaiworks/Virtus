@@ -90,7 +90,29 @@ cp .env.example .env
 # .claude/rules/brand-dna.md をテンプレートとして参照
 ```
 
-### 4. Claude Code で開発開始
+### 4. 依存関係のインストール
+
+```bash
+pip install -e ".[dev]"
+```
+
+### 5. デモの実行
+
+```bash
+# モックモード（API呼び出しなし）
+python scripts/demo.py --mock
+
+# 実際のAPI使用
+python scripts/demo.py --api-key YOUR_ANTHROPIC_API_KEY
+```
+
+### 6. テストの実行
+
+```bash
+pytest tests/ -v
+```
+
+### 7. Claude Code で開発開始
 
 ```bash
 claude  # Claude Code を起動
