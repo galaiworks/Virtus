@@ -1,0 +1,23 @@
+# Brain Layer - Customer Data Protection
+# NEVER commit customer-specific data to version control
+
+# Customer data directories
+customers/*/
+
+# Keep the directory structure
+!customers/.gitkeep
+
+# Sensitive files
+*.yaml
+*.yml
+*.json
+*.md
+!.gitkeep
+
+# Backup files
+*.bak
+*.backup
+
+# Temporary files
+*.tmp
+*.temp

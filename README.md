@@ -90,7 +90,58 @@ cp .env.example .env
 # .claude/rules/brand-dna.md をテンプレートとして参照
 ```
 
-### 4. Claude Code で開発開始
+### 4. 依存関係のインストール
+
+```bash
+pip install -e ".[dev]"
+```
+
+### 5. デモの実行
+
+```bash
+# モックモード（API呼び出しなし）
+python scripts/demo.py --mock
+
+# 実際のAPI使用
+python scripts/demo.py --api-key YOUR_ANTHROPIC_API_KEY
+```
+
+### 6. CLI の使用
+
+```bash
+# 朝報生成
+python scripts/virtus.py morning-brief
+
+# コンテンツ執筆（95点ループ付き）
+python scripts/virtus.py write --topic "AI活用術"
+
+# コンテンツ評価
+python scripts/virtus.py evaluate --content "評価したいテキスト..."
+
+# オンボーディング開始
+python scripts/virtus.py onboard --customer-id new_customer
+
+# システム状態確認
+python scripts/virtus.py status
+```
+
+### 7. テストの実行
+
+```bash
+pytest tests/ -v
+```
+
+### 8. デモ前の環境確認
+
+```bash
+# 基本チェック
+python scripts/preflight.py
+
+# API接続テスト込み
+python scripts/preflight.py --full
+```
+
+### 9. Claude Code で開発開始
 
 ```bash
 claude  # Claude Code を起動

@@ -185,11 +185,92 @@ Designer
 
 ---
 
+## HyperFrames + Video-Use 統合
+
+Designer は動画生成・編集のために以下の2つのツールを統合しています。
+
+### HyperFrames（動画生成）
+
+HTMLからMP4を生成するオープンソースフレームワーク。
+
+```python
+from src.video.hyperframes import HyperFramesClient
+
+client = HyperFramesClient(output_dir=Path("./output"))
+
+# コンポジション作成
+composition = client.create_composition(
+    elements=[
+        {"type": "title", "text": "タイトル", "start": 0, "duration": 3},
+        {"type": "subtitle", "text": "サブタイトル", "start": 1, "duration": 2},
+    ],
+    platform="youtube",  # youtube, tiktok, instagram_reel, etc.
+    duration=10.0,
+    brand_dna=brand_dna,
+)
+
+# レンダリング
+result = client.render(composition, output_name="my_video")
+```
+
+### Video-Use（動画編集）
+
+AIによる自動動画編集。
+
+```python
+from src.video.video_use import VideoUseClient, EditConfig
+
+client = VideoUseClient(output_dir=Path("./output"))
+
+# 編集設定
+config = EditConfig(
+    remove_filler_words=True,   # 「えー」「あのー」削除
+    remove_silence=True,         # 無音部分カット
+    color_grade=True,            # 色補正
+    auto_subtitles=False,        # 字幕生成
+)
+
+# 編集実行
+result = client.edit(
+    input_path=Path("raw_footage.mp4"),
+    config=config,
+    output_name="edited",
+)
+```
+
+### フル動画制作パイプライン
+
+```python
+from src.agents.designer import Designer
+
+designer = Designer(
+    api_key=api_key,
+    brand_dna=brand_dna,
+)
+
+# 生素材 → 編集 → オーバーレイ → 完成動画
+result = designer.execute({
+    "task_type": "full_production",
+    "context": {
+        "input_path": "/path/to/raw_footage.mp4",
+        "platform": "youtube",
+        "title": "動画タイトル",
+        "lower_third": {"name": "登壇者名", "title": "肩書き"},
+        "cta": "チャンネル登録お願いします",
+        "output_name": "final_video",
+    },
+})
+```
+
+---
+
 ## 開発優先度
 
 **Phase 1 必須機能**:
 - [x] サムネイル生成(YouTube、note)
 - [x] OGP 画像生成
+- [x] HyperFrames 統合（動画生成）
+- [x] Video-Use 統合（動画編集）
 - [ ] Instagram カルーセル
 - [ ] 図解生成(Nano Banana Pro)
 
