@@ -206,8 +206,8 @@
 
   /* Scene 5 CTA */
   .cta-card{
-    display:flex;flex-direction:column;align-items:center;gap:64px;
-    padding:90px 70px;border-radius:48px;
+    display:flex;flex-direction:column;align-items:center;gap:36px;
+    padding:70px 60px;border-radius:48px;
     border:1px solid rgba(244,212,184,.25);
     background:
       radial-gradient(120% 80% at 50% 0%, rgba(244,212,184,.18), transparent 60%),
@@ -216,7 +216,7 @@
     box-shadow:0 0 80px rgba(232,180,200,.25);
   }
   .cta-main{
-    font-size:64px;font-weight:400;line-height:1.5;text-align:center;letter-spacing:.04em;
+    font-size:56px;font-weight:400;line-height:1.4;text-align:center;letter-spacing:.04em;
   }
   .cta-main .glow{
     font-weight:700;
@@ -225,8 +225,23 @@
     -webkit-text-fill-color:transparent;
     text-shadow:0 0 24px rgba(244,212,184,.6);
   }
+  .qr-frame{
+    width:360px;height:360px;padding:24px;border-radius:32px;
+    background:#fff;
+    box-shadow:
+      0 0 0 1px rgba(244,212,184,.35),
+      0 0 60px rgba(244,212,184,.35),
+      0 20px 60px rgba(0,0,0,.35);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .qr-frame svg{width:100%;height:100%;display:block}
+  .qr-caption{
+    font-family:'Inter',sans-serif;font-weight:500;font-size:26px;letter-spacing:.22em;
+    color:var(--c-gold);text-transform:uppercase;opacity:.85;
+    margin-top:-12px;
+  }
   .arrow{
-    font-size:80px;line-height:1;
+    font-size:64px;line-height:1;
     animation:bounce 1.4s ease-in-out infinite;
   }
   @keyframes bounce{
@@ -343,15 +358,19 @@
     </div>
   </section>
 
-  <!-- Scene 5 — CTA 40-45s -->
+  <!-- Scene 5 — CTA -->
   <section class="scene" id="s5">
     <div class="cta-card">
       <p class="cta-main">
         詳細・お申し込みは<br>
         <span class="glow">こちらから</span>
       </p>
-      <div class="arrow">↓</div>
       <a class="handle" href="https://ump-event.com/clp/ai_leverage_g/" target="_blank" rel="noopener">ump-event.com/clp/ai_leverage_g</a>
+      <div class="arrow">↓</div>
+      <div class="qr-frame">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 39 39" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h39v39H0z"/><path stroke="#1a0533" d="M1 1.5h7m3 0h3m1 0h3m2 0h1m1 0h3m2 0h1m3 0h7M1 2.5h1m5 0h1m1 0h1m1 0h1m2 0h2m1 0h1m2 0h2m1 0h2m1 0h2m3 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m2 0h1m1 0h3m4 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h3m1 0h2m1 0h1m1 0h3m2 0h1m1 0h4m2 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h2m2 0h2m2 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h3m1 0h1m2 0h1m1 0h1m5 0h4m1 0h1m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 8.5h4m4 0h3m1 0h2m2 0h1m1 0h2M3 9.5h1m2 0h4m3 0h3m2 0h5m3 0h1m2 0h2m1 0h5M2 10.5h4m2 0h2m1 0h3m1 0h2m2 0h1m1 0h1m1 0h2m1 0h1m3 0h1m1 0h1m4 0h1M1 11.5h4m1 0h3m1 0h1m3 0h2m4 0h1m2 0h1m1 0h1m2 0h1m1 0h2m1 0h2m2 0h1M1 12.5h3m2 0h1m1 0h1m1 0h2m1 0h2m1 0h2m1 0h1m3 0h3m1 0h3m2 0h1m1 0h1m1 0h2M3 13.5h1m3 0h3m1 0h1m2 0h4m2 0h1m2 0h2m6 0h2m1 0h1M1 14.5h3m2 0h1m1 0h1m3 0h1m2 0h4m1 0h3m1 0h2m1 0h1m1 0h3m3 0h1m1 0h1M4 15.5h2m1 0h1m1 0h2m1 0h1m2 0h2m1 0h3m1 0h1m1 0h1m2 0h2m2 0h7M2 16.5h1m7 0h1m2 0h1m4 0h2m1 0h2m1 0h1m2 0h1m2 0h1m3 0h1M2 17.5h2m1 0h5m1 0h1m1 0h2m1 0h2m4 0h2m5 0h1m1 0h2m3 0h2M1 18.5h1m2 0h3m4 0h4m1 0h1m3 0h3m3 0h1m1 0h1m2 0h2m1 0h2m1 0h1M1 19.5h5m1 0h1m2 0h1m1 0h5m2 0h1m1 0h1m2 0h3m1 0h2m2 0h1m2 0h1m1 0h1M1 20.5h1m1 0h1m2 0h1m1 0h2m1 0h4m2 0h2m1 0h4m5 0h4m1 0h1M7 21.5h1m1 0h2m1 0h1m1 0h1m5 0h3m5 0h2m1 0h1m2 0h1m1 0h1M1 22.5h3m2 0h1m1 0h3m2 0h2m5 0h6m2 0h1m2 0h2m3 0h2M2 23.5h1m4 0h6m1 0h6m1 0h1m1 0h1m2 0h4m2 0h2m3 0h1M2 24.5h2m2 0h1m1 0h1m3 0h1m2 0h1m1 0h1m1 0h1m1 0h4m2 0h2m1 0h3m1 0h1m1 0h1M1 25.5h1m1 0h1m2 0h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h2m3 0h2m1 0h1m1 0h2m1 0h1m2 0h1M2 26.5h1m2 0h1m2 0h1m1 0h1m3 0h1m1 0h2m1 0h2m6 0h2m2 0h2m4 0h1M1 27.5h5m1 0h1m3 0h1m1 0h3m1 0h2m1 0h5m1 0h1m1 0h1m1 0h2m3 0h3M3 28.5h2m1 0h1m2 0h1m2 0h5m2 0h4m4 0h6m1 0h1m1 0h1M1 29.5h4m1 0h3m1 0h1m2 0h3m1 0h1m1 0h1m2 0h4m2 0h7M9 30.5h1m2 0h5m1 0h5m1 0h3m2 0h1m3 0h2m1 0h2M1 31.5h7m1 0h2m1 0h1m3 0h1m3 0h1m2 0h3m3 0h1m1 0h1m1 0h3m1 0h1M1 32.5h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h5m1 0h3m3 0h2m1 0h1M1 33.5h1m1 0h3m1 0h1m3 0h3m2 0h5m1 0h4m2 0h6M1 34.5h1m1 0h3m1 0h1m2 0h2m2 0h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m3 0h3m2 0h1M1 35.5h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h4m2 0h2m2 0h1m1 0h2m1 0h2m3 0h1m1 0h3M1 36.5h1m5 0h1m3 0h1m3 0h2m1 0h1m2 0h5m1 0h5m2 0h1M1 37.5h7m2 0h3m1 0h3m1 0h2m1 0h1m7 0h2m6 0h1"/></svg>
+      </div>
+      <div class="qr-caption">SCAN TO REGISTER</div>
       <div class="handle-sub">@galaiworks</div>
     </div>
   </section>
@@ -410,56 +429,63 @@
     tl.to(sel, {opacity:0, duration:dur, ease:'power2.in'}, at);
   }
 
-  /* Scene 1 — 0–8s */
+  /* Rhythm: animate → settle → ~2s hold → cross-fade to next
+     Scene spans: s1 0–5s | s2 5–11s | s3 11–18s | s4 18–25s | s5 25–30s */
+
+  /* Scene 1 — 0–5s (anim ends ~2.8s, hold ~1.6s) */
   gsap.set('#s1 [data-s1]', {opacity:0, y:40});
   show('#s1', 0, 0.6);
   tl.to('#s1 .eyebrow', {opacity:.85, y:0, duration:1.0, ease:'power2.out'}, 0.4)
     .to('#s1 .headline', {opacity:1, y:0, duration:1.2, ease:'power3.out'}, 0.9)
     .to('#s1 .sub',      {opacity:1, y:0, duration:1.0, ease:'power2.out'}, 1.8)
-    .to('#b1 i',         {width:'100%', duration:8, ease:'none'}, 0);
-  hide('#s1', 7.4, 0.6);
+    .to('#b1',           {width:'100%', duration:4.4, ease:'none'}, 0);
+  hide('#s1', 4.4, 0.6);
 
-  /* Scene 2 — 8–18s */
-  show('#s2', 8, 0.6);
-  tl.to('#s2 .ln:nth-child(1)', {opacity:1, y:0, duration:0.9, ease:'power2.out'}, 8.6)
-    .to('#s2 .ln:nth-child(2)', {opacity:1, y:0, duration:0.9, ease:'power2.out'}, 10.4)
-    .to('#s2 .ln:nth-child(3)', {opacity:1, y:0, duration:0.9, ease:'power2.out'}, 12.6)
-    .to('#b2 i',                {width:'100%', duration:10, ease:'none'}, 8);
+  /* Scene 2 — 5–11s (anim ends ~8.7s, hold ~1.7s) */
   gsap.set('#s2 .ln', {y:30});
-  hide('#s2', 17.4, 0.6);
+  show('#s2', 5, 0.6);
+  tl.to('#s2 .ln:nth-child(1)', {opacity:1, y:0, duration:0.9, ease:'power2.out'}, 5.4)
+    .to('#s2 .ln:nth-child(2)', {opacity:1, y:0, duration:0.9, ease:'power2.out'}, 6.6)
+    .to('#s2 .ln:nth-child(3)', {opacity:1, y:0, duration:0.9, ease:'power2.out'}, 7.8)
+    .to('#b2',                  {width:'100%', duration:5.4, ease:'none'}, 5);
+  hide('#s2', 10.4, 0.6);
 
-  /* Scene 3 — 18–30s */
+  /* Scene 3 — 11–18s (anim ends ~15.3s, hold ~2.1s) */
   gsap.set('#s3 .promise', {opacity:0, y:30});
-  show('#s3', 18, 0.6);
-  tl.to('#s3 .promise', {opacity:1, y:0, duration:1.0, ease:'power3.out'}, 18.5)
-    .to('#s3 .r1', {opacity:1, y:0, duration:0.7, ease:'power2.out'}, 20.2)
-    .to('#s3 .r2', {opacity:1, y:0, duration:0.7, ease:'power2.out'}, 21.0)
-    .to('#s3 .r3', {opacity:1, y:0, duration:0.7, ease:'power2.out'}, 21.8)
-    .to('#b3 i',   {width:'100%', duration:12, ease:'none'}, 18);
-  hide('#s3', 29.4, 0.6);
+  show('#s3', 11, 0.6);
+  tl.to('#s3 .promise', {opacity:1, y:0, duration:1.0, ease:'power3.out'}, 11.3)
+    .to('#s3 .r1', {opacity:1, y:0, duration:0.7, ease:'power2.out'}, 13.0)
+    .to('#s3 .r2', {opacity:1, y:0, duration:0.7, ease:'power2.out'}, 13.8)
+    .to('#s3 .r3', {opacity:1, y:0, duration:0.7, ease:'power2.out'}, 14.6)
+    .to('#b3',     {width:'100%', duration:6.4, ease:'none'}, 11);
+  hide('#s3', 17.4, 0.6);
 
-  /* Scene 4 — 30–40s */
+  /* Scene 4 — 18–25s (anim ends ~22.3s, hold ~2.1s) */
   gsap.set('#s4 [data-s4]', {opacity:0, y:30});
-  show('#s4', 30, 0.6);
-  tl.to('#s4 .summit-tag',     {opacity:.85, y:0, duration:0.8}, 30.5)
-    .to('#s4 .summit-title',   {opacity:1,   y:0, duration:1.2, ease:'power3.out'}, 31.0)
+  show('#s4', 18, 0.6);
+  tl.to('#s4 .summit-tag',     {opacity:.85, y:0, duration:0.8, ease:'power2.out'}, 18.5)
+    .to('#s4 .summit-title',   {opacity:1,   y:0, duration:1.2, ease:'power3.out'}, 19.0)
     .fromTo('#s4 .summit-title',
             {scale:.92, filter:'blur(8px)'},
-            {scale:1,   filter:'blur(0px)', duration:1.3, ease:'power2.out'}, 31.0)
-    .to('#s4 .summit-divider', {opacity:1, y:0, duration:0.6}, 32.3)
-    .to('#s4 .summit-date',    {opacity:1, y:0, duration:0.8}, 32.8)
-    .to('#s4 .summit-speaker', {opacity:1, y:0, duration:0.8}, 33.6)
-    .to('#b4 i',               {width:'100%', duration:10, ease:'none'}, 30);
-  hide('#s4', 39.4, 0.6);
+            {scale:1,   filter:'blur(0px)', duration:1.3, ease:'power2.out'}, 19.0)
+    .to('#s4 .summit-divider', {opacity:1, y:0, duration:0.6, ease:'power2.out'}, 20.2)
+    .to('#s4 .summit-date',    {opacity:1, y:0, duration:0.8, ease:'power2.out'}, 20.7)
+    .to('#s4 .summit-speaker', {opacity:1, y:0, duration:0.8, ease:'power2.out'}, 21.5)
+    .to('#b4',                 {width:'100%', duration:6.4, ease:'none'}, 18);
+  hide('#s4', 24.4, 0.6);
 
-  /* Scene 5 — 40–45s */
+  /* Scene 5 — 25–30s (anim ends ~27.3s, hold ~2.5s) */
   gsap.set('#s5 .cta-card', {opacity:0, y:40, scale:.96});
-  show('#s5', 40, 0.6);
-  tl.to('#s5 .cta-card', {opacity:1, y:0, scale:1, duration:1.0, ease:'power3.out'}, 40.3)
-    .to('#b5 i',         {width:'100%', duration:5, ease:'none'}, 40);
+  gsap.set('#s5 .qr-frame', {opacity:0, scale:.9});
+  gsap.set('#s5 .qr-caption', {opacity:0, y:8});
+  show('#s5', 25, 0.6);
+  tl.to('#s5 .cta-card',   {opacity:1, y:0, scale:1, duration:1.0, ease:'power3.out'}, 25.3)
+    .to('#s5 .qr-frame',   {opacity:1, scale:1, duration:0.8, ease:'back.out(1.4)'}, 26.5)
+    .to('#s5 .qr-caption', {opacity:.85, y:0, duration:0.5, ease:'power2.out'}, 27.0)
+    .to('#b5',             {width:'100%', duration:5.0, ease:'none'}, 25);
 
-  // total duration 45s
-  tl.to({}, {duration:0.01}, 45);
+  // total duration 30s (last scene holds visible)
+  tl.to({}, {duration:0.01}, 30);
 
   /* ── controls ── */
   const playBtn = document.getElementById('playBtn');
