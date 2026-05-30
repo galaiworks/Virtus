@@ -1,0 +1,64 @@
+# Brand DNA - Founding Member テンプレート
+#
+# 使い方:
+#   1. このファイルを brain/customers/{customer_id}/brand-dna.yml にコピー
+#   2. 顧客オンボーディングの 30 問ヒアリング (60 分) で各値を埋める
+#   3. 過去コンテンツ分析で voice を再キャリブレーション
+#   4. Guardian がこのファイルを毎回参照
+#
+# .claude/rules/brand-dna.md の項目に対応.
+
+identity:
+  name: ""                              # 例: "株式会社サンプル"
+  founder: ""                           # 例: "山田 太郎"
+  founded_year: 0
+  business: ""                          # 30 秒説明
+  primary_target_audience: ""
+  secondary_target_audience: ""
+  unique_value_proposition: |           # 一段落で
+  core_competencies: []                 # 競争優位の源泉
+
+voice:
+  tone: ""                              # 例: "プロフェッショナル × 親近感 × 直球"
+  personality: []                       # 例: ["率直", "数字に強い"]
+  vocabulary:
+    preferred: []                       # よく使う言葉・口癖
+    avoid: []                           # 使いたくない言葉
+  signature_phrases: []                 # その人らしさ全開のフレーズ
+  forbidden_tones: []                   # 例: ["誇張", "煽り"]
+
+content_strategy:
+  pillar_topics: []                     # 主要トピック 3 つ
+  content_types:
+    primary: []                         # 例: ["note_articles", "x_posts"]
+    secondary: []
+  publishing_frequency:
+    note: ""                            # 例: "週 2 本"
+    x: ""
+
+target_audience:
+  age_range: ""
+  industries: []
+  company_size_range: ""
+  pain_points: []                       # 3 つ
+  daily_media: []
+
+forbidden:
+  topics: []
+  expressions:                          # Guardian がここを必ず弾く
+    - "絶対"
+    - "必ず"
+    - "100%"
+    - "簡単に稼げる"
+    - "誰でも"
+    - "魔法のような"
+  practices:
+    - "ブラウザ自動化"
+    - "無断スクレイピング"
+    - "個人情報の不正取得"
+    - "スパム送信"
+
+reference:
+  past_winning_content: []              # 過去バズコンテンツの URL とインサイト
+  competitor_examples: []               # 差別化対象
+  inspiration_sources: []

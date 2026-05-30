@@ -9,6 +9,10 @@ brain/leads/
 brain/deals/
 brain/content-history/
 brain/win-patterns/
+brain/galaiworks/
+*.sqlite
+*.sqlite-journal
+*.db
 
 # ログ
 logs/

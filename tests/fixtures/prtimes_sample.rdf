@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns="http://purl.org/rss/1.0/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel rdf:about="https://prtimes.jp/">
+    <title>PR TIMES</title>
+    <link>https://prtimes.jp/</link>
+    <description>サンプル</description>
+  </channel>
+
+  <item rdf:about="https://prtimes.jp/main/html/rd/p/000000001.html">
+    <title>株式会社サンプル AI、シリーズ A で 5 億円の資金調達を実施、採用拡大も</title>
+    <link>https://prtimes.jp/main/html/rd/p/000000001.html</link>
+    <description>株式会社サンプル AI は、Series A ラウンドで 5 億円の資金調達を実施しました。年商 12 億円規模を見据え、エンジニアの採用拡大を進めます。</description>
+    <dc:date>2030-05-25T10:00:00+09:00</dc:date>
+    <dc:creator>株式会社サンプル AI</dc:creator>
+    <dc:subject>AI</dc:subject>
+    <dc:subject>SaaS</dc:subject>
+  </item>
+
+  <item rdf:about="https://prtimes.jp/main/html/rd/p/000000002.html">
+    <title>株式会社レガシー、新製品の発表</title>
+    <link>https://prtimes.jp/main/html/rd/p/000000002.html</link>
+    <description>新製品「○○」を発売します。</description>
+    <dc:date>2030-05-25T09:00:00+09:00</dc:date>
+    <dc:creator>株式会社レガシー</dc:creator>
+    <dc:subject>製造業</dc:subject>
+  </item>
+
+  <item rdf:about="https://prtimes.jp/main/html/rd/p/000000003.html">
+    <title>株式会社オールド、製品の改善版を公開</title>
+    <link>https://prtimes.jp/main/html/rd/p/000000003.html</link>
+    <description>業界トップシェアの当社が新機能を追加しました。売上高 50 億円規模の事業に成長。</description>
+    <dc:date>2020-01-01T09:00:00+09:00</dc:date>
+    <dc:creator>株式会社オールド</dc:creator>
+    <dc:subject>SaaS</dc:subject>
+  </item>
+</rdf:RDF>
