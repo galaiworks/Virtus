@@ -235,13 +235,25 @@
   }
   .handle{
     font-family:'Inter',sans-serif;
-    font-weight:600;font-size:56px;letter-spacing:.12em;
-    color:#fff;
-    padding:22px 56px;
+    font-weight:600;font-size:36px;letter-spacing:.02em;
+    color:#fff;text-decoration:none;
+    padding:22px 44px;
     border:1px solid rgba(244,212,184,.4);
     border-radius:999px;
     background:linear-gradient(135deg, rgba(244,212,184,.12), rgba(232,180,200,.06));
     text-shadow:0 0 18px rgba(244,212,184,.55);
+    display:inline-block;
+    white-space:nowrap;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .handle:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 32px rgba(244,212,184,.45);
+  }
+  .handle-sub{
+    font-family:'Inter',sans-serif;
+    font-weight:400;font-size:32px;letter-spacing:.18em;
+    color:var(--c-mute);margin-top:4px;
   }
 
   /* Progress timeline */
@@ -335,11 +347,12 @@
   <section class="scene" id="s5">
     <div class="cta-card">
       <p class="cta-main">
-        プロフのリンクから<br>
-        <span class="glow">詳細をチェック</span>
+        詳細・お申し込みは<br>
+        <span class="glow">こちらから</span>
       </p>
       <div class="arrow">↓</div>
-      <div class="handle">@galaiworks</div>
+      <a class="handle" href="https://ump-event.com/clp/ai_leverage_g/" target="_blank" rel="noopener">ump-event.com/clp/ai_leverage_g</a>
+      <div class="handle-sub">@galaiworks</div>
     </div>
   </section>
 
