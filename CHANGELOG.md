@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+### Added — Officina v0.2(KPI・撤退基準・フェーズ計画)
+
+- **KPI / 撤退基準**(`src/officina/metrics.py`・要件定義 §10):
+  - `FunnelCounts` — 返信率 → 商談実施率(booked→held)→ クローズドウォンを実数で計測。
+  - `gate_pass_rates` / `reject_recurrence_rate` — ゲート合格率・リジェクト再発率。
+  - `KpiTracker.withdrawal_triggers` — スパム苦情率上昇 / 勝率のハイブリッド基準割れ /
+    ゲート合格率下限割れ の撤退・見直しトリガー(§10.2)。
+- **フェーズ計画**(`src/officina/phases.py`・要件定義 §11):Phase 1-3 の自律比率を定義。
+  漸近線(契約署名・納品承認の 2 ゲート)は全フェーズで人間固定。import 時に
+  「2 ゲート人間」「自律比率の単調増加」を自己検証。
+- テストを 11 ケース追加(計 48 ケース全通過)。
+
 ### Added — Officina(自律型 AI エージェンシー OS)v0.1 実装
 
 要件定義書 `自律型AIエージェンシーOS 要件定義 v0.1` を実装。

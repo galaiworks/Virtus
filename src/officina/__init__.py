@@ -14,6 +14,12 @@
 """
 
 from src.officina.config import OfficinaConfig, load_config
+from src.officina.metrics import (
+    FunnelCounts,
+    KpiReport,
+    KpiTracker,
+    WithdrawalTrigger,
+)
 from src.officina.models import (
     Deal,
     GateResult,
@@ -25,6 +31,7 @@ from src.officina.models import (
     Verdict,
 )
 from src.officina.orchestrator import Orchestrator
+from src.officina.phases import PHASES, Phase, PhasePlan, get_phase_plan
 from src.officina.pipeline import PIPELINE, get_stage, human_gates
 
 __all__ = [
@@ -42,4 +49,12 @@ __all__ = [
     "get_stage",
     "human_gates",
     "Orchestrator",
+    "Phase",
+    "PhasePlan",
+    "PHASES",
+    "get_phase_plan",
+    "FunnelCounts",
+    "KpiReport",
+    "KpiTracker",
+    "WithdrawalTrigger",
 ]
