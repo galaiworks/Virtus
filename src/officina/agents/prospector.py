@@ -16,7 +16,12 @@ class Prospector(BaseAgent):
     name = "prospector"
 
     def execute(self, task: dict[str, Any]) -> AgentResult:
-        raw = task.get("candidates", [])
+        # シグナル層(§12-3)。signal_source があればそこから候補を取得する。
+        source = task.get("signal_source")
+        if source is not None:
+            raw = source.fetch(task.get("signal_query", {}))
+        else:
+            raw = task.get("candidates", [])
         seen: set[str] = set()
         leads: list[Lead] = []
         duplicates = 0

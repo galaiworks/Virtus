@@ -103,3 +103,30 @@ def test_opt_out_blocks_outreach(brand_dna, deal, stage_inputs):
     result = orch.run(deal, stage_inputs)
     assert result.status == "escalated"
     assert result.current_stage == Stage.OUTREACH
+
+
+def test_contract_requires_corporate_entity(brand_dna, deal, stage_inputs):
+    # §12-4: 法人未設立なら契約締結に進めない。
+    from src.officina.config import OfficinaConfig
+
+    cfg = OfficinaConfig(corporate_entity_active=False)
+    orch = Orchestrator(brand_dna=brand_dna, config=cfg)
+    result = orch.run(deal, stage_inputs)
+    assert result.status == "escalated"
+    assert result.current_stage == Stage.CONTRACT
+
+
+def test_prospector_uses_signal_source(brand_dna, deal, stage_inputs):
+    from src.officina.decisions import SignalLayerMode
+    from src.officina.signals import get_signal_source
+
+    source = get_signal_source(
+        SignalLayerMode.INTEGRATION,
+        [{"company": "S社", "contact": "高橋", "email": "s@s.co.jp"}],
+    )
+    stage_inputs[Stage.PROSPECTING] = {"signal_source": source}
+    orch = Orchestrator(brand_dna=brand_dna)
+    result = orch.run(deal, stage_inputs)
+    # シグナル層経由でも契約ゲートまで到達する。
+    assert result.status == "pending_human"
+    assert result.current_stage == Stage.CONTRACT

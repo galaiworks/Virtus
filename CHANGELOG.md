@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+### Added — Officina v0.3(§12 オープン決定事項の確定)
+
+要件定義 §12 の 5 点を「勝ち筋」で確定。
+
+- **決定の単一真実源**(`src/officina/decisions.py`):`CONFIRMED`(ACV 帯=低 ACV 高
+  ボリューム / 納品物=エージェント構築に絞る / シグナル層=外部連携 / 法人スキーム
+  組込=有効 / deliverability=内製)。各決定に根拠(`rationale`)を付与。
+- **納品物の標準型**(`src/officina/deliverables.py`・§12-2 / §8.4):エージェント構築に
+  絞り、受入テストテンプレートを定義。士業独占業務は自律納品の対象外。
+- **シグナル層アダプタ**(`src/officina/signals.py`・§12-3):外部連携/自前を切替できる
+  `SignalSource` 境界。Prospector が `signal_source` 経由で候補取得。実在性検証付き(§8.5)。
+- **法人スキーム前提**(§12-4):`config.corporate_entity_active` +
+  `corporate_entity_gate`。法人未設立なら契約締結ゲートに進めない(orchestrator に配線)。
+- テストを 7 ケース追加(計 55 ケース全通過)。
+
 ### Added — Officina v0.2(KPI・撤退基準・フェーズ計画)
 
 - **KPI / 撤退基準**(`src/officina/metrics.py`・要件定義 §10):

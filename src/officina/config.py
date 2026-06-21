@@ -86,6 +86,10 @@ class OfficinaConfig:
     brain_dir: str = "./brain"
     logs_dir: str = "./logs"
 
+    # --- 法人スキーム(§12-4)---
+    # 契約締結ゲート = 法人名義受注に直結。法人が有効でなければ署名に進めない。
+    corporate_entity_active: bool = True
+
     models: ModelTiers = field(default_factory=ModelTiers)
 
 
@@ -109,4 +113,5 @@ def load_config() -> OfficinaConfig:
         max_discount_pct=_float_env("MAX_DISCOUNT_PCT", 0.15),
         brain_dir=os.environ.get("BRAIN_DIR", "./brain"),
         logs_dir=os.environ.get("LOGS_DIR", "./logs"),
+        corporate_entity_active=_bool_env("CORPORATE_ENTITY_ACTIVE", True),
     )

@@ -96,6 +96,19 @@ class DeterministicGates:
             gate_type=GateType.DETERMINISTIC, verdict=verdict, reasons=reasons
         )
 
+    def corporate_entity_gate(self, entity_active: bool) -> GateResult:
+        """法人スキーム前提条件(§12-4)。
+
+        契約締結ゲート = 法人名義受注に直結。法人が有効でなければ署名に進めない。
+        """
+        if entity_active:
+            return GateResult(gate_type=GateType.DETERMINISTIC, verdict=Verdict.PASS)
+        return GateResult(
+            gate_type=GateType.DETERMINISTIC,
+            verdict=Verdict.ESCALATE,
+            reasons=["契約締結には法人設立が前提(法人名義受注・§12-4)"],
+        )
+
     # --- ステージ 8: 本番デプロイ ---
     def prod_deploy_gate(
         self, all_tests_passed: bool, guardian_approved: bool, human_approved: bool
