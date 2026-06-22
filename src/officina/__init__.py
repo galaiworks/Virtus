@@ -14,6 +14,8 @@
 """
 
 from src.officina.config import OfficinaConfig, load_config
+from src.officina.decisions import CONFIRMED, OpenDecisions
+from src.officina.deliverables import DeliverableType, build_acceptance_tests, is_in_scope
 from src.officina.metrics import (
     FunnelCounts,
     KpiReport,
@@ -33,6 +35,11 @@ from src.officina.models import (
 from src.officina.orchestrator import Orchestrator
 from src.officina.phases import PHASES, Phase, PhasePlan, get_phase_plan
 from src.officina.pipeline import PIPELINE, get_stage, human_gates
+from src.officina.signals import (
+    IntegrationSignalSource,
+    SignalSource,
+    get_signal_source,
+)
 
 __all__ = [
     "OfficinaConfig",
@@ -57,4 +64,12 @@ __all__ = [
     "KpiReport",
     "KpiTracker",
     "WithdrawalTrigger",
+    "CONFIRMED",
+    "OpenDecisions",
+    "DeliverableType",
+    "build_acceptance_tests",
+    "is_in_scope",
+    "SignalSource",
+    "IntegrationSignalSource",
+    "get_signal_source",
 ]

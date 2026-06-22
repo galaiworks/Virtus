@@ -141,19 +141,18 @@ python scripts/officina_demo.py
 `phases._validate_phases()` が「全フェーズで 2 ゲートは人間」「自律比率は単調増加」を
 import 時に自己検証する。
 
-## 9. §12 オープン決定事項に対する Phase 1 の既定値
+## 9. §12 オープン決定事項の確定(v0.3・勝ち筋)
 
-要件定義 §12 は判断待ち。実装は以下の**保守的な既定値**を採用し、すべて
-`config.OfficinaConfig` / `metadata` で上書きできるようにしてある(v0.2 で確定)。
+要件定義 §12 の 5 点を「勝ち筋」で確定。単一の真実源は
+`src/officina/decisions.py` の `CONFIRMED`。方針変更時はここを書き換えれば波及する。
 
-1. **初期 ACV 帯** — 勝ち筋に従い低 ACV 高ボリューム。`acv_ai_led_max_usd=$25k`、
-   `acv_human_required_usd=$50k`(超過はクロージング人間主導)。
-2. **納品物の標準型** — 「クライアント向けエージェント構築(Faber 適用)」に絞る。
-   合格基準(受入テスト)を作りやすく自律度が上がるため(`ArchitectBuilder`)。
-3. **シグナル層** — 抽象化のみ実装(`Prospector` がデータ検証率・重複/不達除去を担保)。
-   自前/外部連携の選択は差し込み可能な設計。
-4. **法人化との接続** — 契約締結ゲート(ゲート A)= 法人名義受注の起点として整合。
-5. **deliverability インフラ** — ドメイン分離・ウォームアップを決定論ゲートで内製制御。
-   外部ツール連携も `DeliverabilityMetrics` の入力差し替えで可能。
+| # | 決定 | 確定値 | 実装 |
+|---|------|--------|------|
+| 1 | 初期 ACV 帯 | 低 ACV 高ボリューム($25k 未満) | `config`(`acv_ai_led_max_usd` / `acv_human_required_usd`) |
+| 2 | 納品物の標準型 | クライアント向けエージェント構築に絞る | `deliverables.py`(`is_in_scope` / 受入テンプレ)。士業独占は別棚(§8.4) |
+| 3 | シグナル層 | 外部連携で立ち上げ → 段階的に自前 | `signals.py`(`SignalSource` アダプタ境界) |
+| 4 | 法人化との接続 | 法人スキームを前提に組み込む | `config.corporate_entity_active` + `corporate_entity_gate`(契約ゲート前提条件) |
+| 5 | deliverability 基盤 | 決定論ゲートで内製制御 | `governance/deliverability.py` |
 
-> これらは**ガライの確認待ち**。回答で v0.2 に更新する。
+各確定の根拠は `CONFIRMED.rationale` に記録(要件定義 §3 / §12 由来)。
+すべて `config` / `OpenDecisions` で上書き可能。

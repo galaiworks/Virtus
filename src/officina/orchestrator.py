@@ -25,6 +25,7 @@ from src.officina.agents import (
     Scout,
 )
 from src.officina.config import OfficinaConfig, load_config
+from src.officina.decisions import CONFIRMED, OpenDecisions
 from src.officina.governance.deterministic_gates import DeterministicGates
 from src.officina.governance.guardian_gate import GuardianGate
 from src.officina.governance.hitl import ApprovalStore, HumanGate, escalate
@@ -76,9 +77,11 @@ class Orchestrator:
         config: OfficinaConfig | None = None,
         reject_log: RejectLog | None = None,
         approval_store: ApprovalStore | None = None,
+        decisions: OpenDecisions | None = None,
     ) -> None:
         self.brand_dna = brand_dna
         self.config = config or load_config()
+        self.decisions = decisions or CONFIRMED
         self.gates = DeterministicGates(self.config)
         self.guardian = GuardianGate(
             threshold=self.config.quality_threshold, brand_dna=brand_dna
@@ -187,7 +190,15 @@ class Orchestrator:
         # 人間所有ステージ(契約・納品承認)はエージェント実行なし。
         if agent is None:
             if sd.gate_type == GateType.HUMAN:
-                gate = self.human_gate.request(deal.id, sd.stage, sd.name)
+                # 契約締結は法人名義受注が前提(§12-4)。法人未設立なら署名に進めない。
+                if (
+                    sd.stage == Stage.CONTRACT
+                    and self.decisions.incorporate_corporate_scheme
+                    and not self.config.corporate_entity_active
+                ):
+                    gate = self.gates.corporate_entity_gate(False)
+                else:
+                    gate = self.human_gate.request(deal.id, sd.stage, sd.name)
             else:
                 gate = GateResult(GateType.NONE, Verdict.PASS)
             return StageResult(sd.stage, sd.owner, {}, gate)
