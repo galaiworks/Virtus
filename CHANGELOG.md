@@ -30,6 +30,24 @@
 - テストを 19 ケース追加(計 74 ケース全通過)。境界ゲートの「逃げない」停止・
   免責付与・決定論動作を検証。
 
+### Added — 税理士エージェントの Guardian 連携・監査ログ
+
+税理士エージェントを Virtus 本体の品質・監査基盤に配線。単体で浮いていた
+エージェントを 95 点ループと監査ログに接続した。
+
+- **Guardian 税務チェック**(`guardian_gate.py`):`content_type` が税務系
+  (`tax_support` / `tax_estimate`)のとき、免責事項が無ければ `force_reject`
+  (独占業務との境界明示が必須・tax-compliance.md §6)。
+- **Guardian 連携ブリッジ**(`src/agents/tax_review.py`):`review_tax_result` が
+  税理士出力を Guardian に通す。独占業務を検出して停止したエスカレーション出力は
+  「逃げずに正しく止めた安全側の挙動」として PASS 扱い(生成と検証を分離・原則 #4)。
+- **監査ログ**(`src/agents/tax_audit.py`・tax-compliance.md §7):境界判定・
+  エスカレーションレベル・免責付与・根拠年度を JSONL で追記記録(パス省略時は
+  メモリ内)。「AI が独占業務に踏み込んでいないこと」を後から証明可能に。
+- **配線**(`tax_accountant.py`):`TaxAccountant` に任意の `audit_log` を追加し、
+  全 execute() の判定を自動記録。返り値の組み立てを `_build_result` に分離。
+- テストを 8 ケース追加(計 82 ケース全通過)。
+
 ### Added — Officina v0.3(§12 オープン決定事項の確定)
 
 要件定義 §12 の 5 点を「勝ち筋」で確定。

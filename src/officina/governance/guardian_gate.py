@@ -32,6 +32,12 @@ RISK_EXPRESSIONS: list[tuple[str, int]] = [
     ("すぐ稼げる", 5),
 ]
 
+#: 税務ドメインのコンテンツ種別(tax-compliance.md §6 で免責を必須化する)。
+TAX_CONTENT_TYPES: set[str] = {"tax_support", "tax_estimate"}
+
+#: 免責事項が付いていると判定するマーカー(tax-compliance.md §4)。
+TAX_DISCLAIMER_MARKERS: tuple[str, ...] = ("免責", "税理士", "税務相談には当たりません")
+
 
 class GuardianGate:
     """95 点ループの独立検証ゲート。
@@ -89,6 +95,15 @@ class GuardianGate:
             if word and word in content:
                 score -= 8
                 reasons.append(f"ブランド DNA 禁止表現: 「{word}」")
+
+        # --- 税務ドメイン(tax-compliance.md §6):独占業務・免責の厳格化 ---
+        if content_type in TAX_CONTENT_TYPES:
+            if not self._has_tax_disclaimer(content):
+                score -= 25
+                force_reject = True
+                reasons.append(
+                    "税理士法:免責事項なし(独占業務との境界明示が必須・force_reject)"
+                )
 
         # --- 内容の質(20):空・極端に短い ---
         if len(content.strip()) < 20:
@@ -157,6 +172,11 @@ class GuardianGate:
     def _has_unsubscribe(content: str) -> bool:
         markers = ["配信停止", "配信解除", "解除", "unsubscribe", "オプトアウト"]
         return any(m in content for m in markers)
+
+    @staticmethod
+    def _has_tax_disclaimer(content: str) -> bool:
+        """税務出力に免責事項(独占業務との境界明示)が付いているか。"""
+        return any(m in content for m in TAX_DISCLAIMER_MARKERS)
 
     @staticmethod
     def _has_sender_info(content: str) -> bool:

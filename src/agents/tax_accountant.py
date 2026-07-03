@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from src.agents.base import AgentResult, BaseAgent
+from src.agents.tax_audit import TaxAuditEntry, TaxAuditLog
 
 # --- 根拠年度(改正で変わる値は必ず年度を明示する) ---
 SOURCE_YEAR = "令和6年度税制(2024年度)"
@@ -389,6 +390,41 @@ class TaxAccountant(BaseAgent):
 
     name = "tax_accountant"
 
+    def __init__(
+        self,
+        model: str,
+        brand_dna: dict[str, Any],
+        api_key: str | None = None,
+        skills: list[str] | None = None,
+        dry_run: bool = False,
+        audit_log: TaxAuditLog | None = None,
+    ) -> None:
+        super().__init__(
+            model=model,
+            brand_dna=brand_dna,
+            api_key=api_key,
+            skills=skills,
+            dry_run=dry_run,
+        )
+        #: 監査ログ(tax-compliance.md §7)。``None`` なら記録しない。
+        self.audit_log = audit_log
+
+    def _audit(self, result: AgentResult) -> None:
+        """判定結果を監査ログへ記録する(設定時のみ)。"""
+        if self.audit_log is None:
+            return
+        out = result.output
+        self.audit_log.record(
+            TaxAuditEntry(
+                agent=self.name,
+                task_type=out.get("task_type", ""),
+                boundary_verdict=out.get("boundary_verdict", ""),
+                escalation_level=int(result.meta.get("escalation_level", 0)),
+                disclaimer_attached=bool(result.meta.get("disclaimer_attached", False)),
+                source_year=str(result.meta.get("source_year", "")),
+            )
+        )
+
     #: 対応タスク種別 -> ハンドラ。
     def execute(self, task: dict[str, Any]) -> AgentResult:
         """タスクを実行する。独占業務ゲートを最優先で通す。
@@ -412,6 +448,14 @@ class TaxAccountant(BaseAgent):
         )
         boundary = boundary_check(request_text)
 
+        result = self._build_result(task, task_type, boundary)
+        self._audit(result)
+        return result
+
+    def _build_result(
+        self, task: dict[str, Any], task_type: str, boundary: BoundaryResult
+    ) -> AgentResult:
+        """境界判定とハンドラ結果から AgentResult を組み立てる。"""
         if not boundary.passed:
             return self._escalate(task_type, boundary)
 
@@ -430,9 +474,10 @@ class TaxAccountant(BaseAgent):
                 output={
                     "error": f"未対応のタスク種別: {task_type!r}",
                     "supported": sorted(handlers),
+                    "boundary_verdict": boundary.verdict,
                     "disclaimer": DISCLAIMER,
                 },
-                meta={"boundary_verdict": boundary.verdict},
+                meta={"boundary_verdict": boundary.verdict, "disclaimer_attached": True},
             )
 
         result = handler(task)
