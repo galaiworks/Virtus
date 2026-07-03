@@ -26,6 +26,15 @@ SCOPES: dict[str, set[str]] = {
     "delivery": {"handover", "configure", "smoke_test"},
     "ops": {"create_invoice", "collect_payment", "monitor", "draft_upsell"},
     "analyst": {"read_all", "analyze", "monitor_drift"},
+    # 税理士 AI:記帳補助・情報提供・書類整理のみ。税務代理・申告は権限外(独占業務)。
+    "tax_accountant": {
+        "categorize_expense",
+        "estimate_reference",
+        "check_document_format",
+        "summarize_bookkeeping",
+        "remind_deadline",
+        "escalate",
+    },
 }
 
 #: 誰も自律実行してはならない不可逆アクション(人間ゲート専用)。
@@ -34,6 +43,9 @@ HUMAN_ONLY_ACTIONS: set[str] = {
     "approve_delivery",  # ゲート B:納品物 最終承認(賠償リスク・不可逆)
     "write_prod_db",  # 本番 DB 書込
     "deploy_prod",  # 本番デプロイ
+    "file_tax_return",  # 税務申告・提出(税理士独占業務・税理士法第52条)
+    "tax_representation",  # 税務代理(税理士独占業務)
+    "create_tax_document",  # 税務書類の作成(税理士独占業務)
 }
 
 

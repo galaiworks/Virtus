@@ -4,6 +4,50 @@
 
 ## [Unreleased]
 
+### Added — 税理士 AI エージェント(Tax Accountant / Zeirishi)
+
+ひとり社長・フリーランスのバックオフィス支援として、記帳補助・情報提供・
+書類整理・期限管理を行う税理士 AI エージェントを実装。CLAUDE.md 第四原則
+「規約遵守を絶対視する」と神さんの教え「逃げるな」を税務ドメインに適用。
+
+- **税理士法遵守ルール**(`.claude/rules/tax-compliance.md`):税理士業務は
+  独占業務(税理士法第 52 条)。税務代理・税務書類の作成・個別の税務相談には
+  一切踏み込まない境界を定義。免責事項・エスカレーション基準・監査ログ要件を規定。
+- **エージェント定義**(`.claude/agents/tax-accountant.md`):役割・システム
+  プロンプト・タスク種別・Guardian 連携を定義。
+- **実装**(`src/agents/tax_accountant.py`・`BaseAgent` 継承):
+  - **独占業務境界ゲート**(決定論):脱税幇助=`critical_violation`(Level 4・関与
+    拒否)、税務代理/書類作成/税務調査=`escalate_to_zeirishi`(Level 3)、個別
+    税務相談=`escalate_to_zeirishi`(Level 2)。LLM 解釈に委ねず if/then で強制。
+  - **記帳補助**:取引内容 → 勘定科目候補(信頼度・要確認フラグ付き)。
+  - **所得税概算**:令和6年度速算表 + 復興特別所得税(参考値・確定値でない旨明記)。
+  - **インボイスチェック**:適格請求書 6 記載事項の有無 + 登録番号(T+13 桁)形式判定。
+  - **月次記帳サマリー / 申告・納付期限リマインド**。
+  - 全出力に免責事項を付与。オフライン(dry_run)で決定論的に動作。
+- **ゼロトラスト権限**(`permissions.py`):`tax_accountant` は記帳補助・情報提供の
+  み。`file_tax_return` / `tax_representation` / `create_tax_document`(税理士独占
+  業務)を `HUMAN_ONLY_ACTIONS` に追加し、全エージェントで実行不可に。
+- テストを 19 ケース追加(計 74 ケース全通過)。境界ゲートの「逃げない」停止・
+  免責付与・決定論動作を検証。
+
+### Added — 税理士エージェントの Guardian 連携・監査ログ
+
+税理士エージェントを Virtus 本体の品質・監査基盤に配線。単体で浮いていた
+エージェントを 95 点ループと監査ログに接続した。
+
+- **Guardian 税務チェック**(`guardian_gate.py`):`content_type` が税務系
+  (`tax_support` / `tax_estimate`)のとき、免責事項が無ければ `force_reject`
+  (独占業務との境界明示が必須・tax-compliance.md §6)。
+- **Guardian 連携ブリッジ**(`src/agents/tax_review.py`):`review_tax_result` が
+  税理士出力を Guardian に通す。独占業務を検出して停止したエスカレーション出力は
+  「逃げずに正しく止めた安全側の挙動」として PASS 扱い(生成と検証を分離・原則 #4)。
+- **監査ログ**(`src/agents/tax_audit.py`・tax-compliance.md §7):境界判定・
+  エスカレーションレベル・免責付与・根拠年度を JSONL で追記記録(パス省略時は
+  メモリ内)。「AI が独占業務に踏み込んでいないこと」を後から証明可能に。
+- **配線**(`tax_accountant.py`):`TaxAccountant` に任意の `audit_log` を追加し、
+  全 execute() の判定を自動記録。返り値の組み立てを `_build_result` に分離。
+- テストを 8 ケース追加(計 82 ケース全通過)。
+
 ### Added — Officina v0.3(§12 オープン決定事項の確定)
 
 要件定義 §12 の 5 点を「勝ち筋」で確定。
