@@ -49,6 +49,7 @@ def check_dependencies() -> tuple[bool, str]:
     try:
         import anthropic  # noqa: F401
         import yaml  # noqa: F401
+
         return True, ""
     except ImportError as e:
         return False, f"Missing: {e.name}"
@@ -109,6 +110,7 @@ def check_mock_demo() -> tuple[bool, str]:
 
 def check_api_key() -> tuple[bool, str]:
     import os
+
     key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not key:
         return False, "ANTHROPIC_API_KEY not set"
@@ -120,6 +122,7 @@ def check_api_key() -> tuple[bool, str]:
 def check_api_connection() -> tuple[bool, str]:
     try:
         import os
+
         from anthropic import Anthropic
 
         client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
@@ -135,8 +138,9 @@ def check_api_connection() -> tuple[bool, str]:
 
 def check_disk_space() -> tuple[bool, str]:
     import shutil
+
     total, used, free = shutil.disk_usage(".")
-    free_gb = free // (1024 ** 3)
+    free_gb = free // (1024**3)
     if free_gb < 1:
         return False, f"Only {free_gb}GB free"
     return True, f"{free_gb}GB free"
@@ -223,7 +227,9 @@ def main() -> int:
         print(f"  {Colors.GREEN}{Colors.BOLD}All checks passed! Ready for demo.{Colors.RESET}")
         return 0
     else:
-        print(f"  {Colors.RED}{Colors.BOLD}Some checks failed. Please fix before demo.{Colors.RESET}")
+        print(
+            f"  {Colors.RED}{Colors.BOLD}Some checks failed. Please fix before demo.{Colors.RESET}"
+        )
         return 1
 
 

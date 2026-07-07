@@ -9,6 +9,10 @@ from anthropic import Anthropic
 class BaseAgent(ABC):
     """Base class for all Virtus agents."""
 
+    # API エラー連発時のエスカレーション前に SDK レベルで吸収するリトライ回数
+    MAX_API_RETRIES = 3
+    API_TIMEOUT_SECONDS = 120.0
+
     def __init__(
         self,
         api_key: str,
@@ -16,7 +20,11 @@ class BaseAgent(ABC):
         brand_dna: dict[str, Any],
         skills: list[str] | None = None,
     ) -> None:
-        self.client = Anthropic(api_key=api_key)
+        self.client = Anthropic(
+            api_key=api_key,
+            max_retries=self.MAX_API_RETRIES,
+            timeout=self.API_TIMEOUT_SECONDS,
+        )
         self.model = model
         self.brand_dna = brand_dna
         self.skills = skills or []

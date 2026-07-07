@@ -159,13 +159,15 @@ class Guardian(BaseAgent):
         content_type: str,
         agent_name: str,
         revise_fn: Callable[[str, str], str] | None = None,
+        max_retries: int | None = None,
     ) -> dict[str, Any]:
         """Run the 95-point quality loop."""
+        retry_limit = self.MAX_RETRIES if max_retries is None else max_retries
         retry_count = 0
         current_content = content
         history: list[Evaluation] = []
 
-        while retry_count <= self.MAX_RETRIES:
+        while retry_count <= retry_limit:
             evaluation = self.evaluate(current_content, content_type)
             history.append(evaluation)
 
@@ -350,8 +352,14 @@ class Guardian(BaseAgent):
             for v in data.get("violations", [])
         ]
 
+        # LLM が "96" のような文字列で返しても THRESHOLD 比較が壊れないよう強制変換
+        try:
+            total_score = int(data.get("total_score", 0))
+        except (TypeError, ValueError):
+            total_score = 0
+
         return Evaluation(
-            total_score=data.get("total_score", 0),
+            total_score=total_score,
             verdict=data.get("verdict", "REJECTED"),
             axis_scores=data.get("axis_scores", {}),
             violations=violations,

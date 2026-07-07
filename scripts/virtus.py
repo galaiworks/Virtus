@@ -61,15 +61,17 @@ def cmd_morning_brief(args: argparse.Namespace) -> None:
         brand_dna=load_brand_dna(args.customer),
     )
 
-    result = orchestrator.morning_brief(
-        {"current_date": datetime.now().date().isoformat()}
-    )
+    result = orchestrator.morning_brief({"current_date": datetime.now().date().isoformat()})
 
     if result.get("success"):
         print("\n" + "=" * 50)
         print("Morning Brief")
         print("=" * 50)
-        print(result["output"].get("content", json.dumps(result["output"], ensure_ascii=False, indent=2)))
+        print(
+            result["output"].get(
+                "content", json.dumps(result["output"], ensure_ascii=False, indent=2)
+            )
+        )
     else:
         print(f"Error: {result.get('error', 'Unknown error')}")
 
@@ -96,9 +98,7 @@ def cmd_write(args: argparse.Namespace) -> None:
     print(f"Retry count: {result.get('retry_count', 0)}")
 
     if result.get("evaluation"):
-        eval_data = result["evaluation"]
-        score = eval_data.get("total_score", eval_data.total_score if hasattr(eval_data, "total_score") else "N/A")
-        print(f"Score: {score}/100")
+        print(f"Score: {result['evaluation'].get('total_score', 'N/A')}/100")
 
     if result.get("content"):
         print("\n" + "=" * 50)
@@ -142,8 +142,9 @@ def cmd_onboard(args: argparse.Namespace) -> None:
     print(f"Starting onboarding for: {args.customer_id}")
     flow = OnboardingFlow(api_key=get_api_key())
 
-    session = flow.start_session(args.customer_id)
-    print(f"Session started. {len(session.responses)}/{session.total_questions} questions answered.\n")
+    flow.start_session(args.customer_id)
+    progress = flow.get_progress(args.customer_id)
+    print(f"Session started. {progress['current']}/{progress['total']} questions answered.\n")
 
     while True:
         question = flow.get_current_question(args.customer_id)
@@ -151,25 +152,25 @@ def cmd_onboard(args: argparse.Namespace) -> None:
             print("\nAll questions answered!")
             break
 
-        print(f"\n[{question['id']}] {question['category']}")
-        print(f"Q: {question['question']}")
+        print(f"\n[{question.id}] {question.category}")
+        print(f"Q: {question.question}")
 
         answer = input("A: ").strip()
         if answer.lower() == "quit":
             print("Onboarding paused. Resume later with same customer ID.")
             break
 
-        flow.submit_answer(args.customer_id, question["id"], answer)
+        flow.submit_answer(args.customer_id, question.id, answer)
         progress = flow.get_progress(args.customer_id)
-        print(f"Progress: {progress['answered']}/{progress['total']}")
+        print(f"Progress: {progress['current']}/{progress['total']}")
 
     if flow.get_progress(args.customer_id)["completed"]:
         print("\nGenerating Brand DNA...")
         brand_dna = flow.generate_brand_dna(args.customer_id)
         if brand_dna:
             print("Brand DNA generated successfully!")
-            print(f"Name: {brand_dna.name}")
-            print(f"Tagline: {brand_dna.tagline}")
+            print(f"Name: {brand_dna.identity.get('name', 'N/A')}")
+            print(f"Voice tone: {brand_dna.voice.get('tone', 'N/A')}")
 
 
 def cmd_status(args: argparse.Namespace) -> None:

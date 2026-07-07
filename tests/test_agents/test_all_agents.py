@@ -101,9 +101,7 @@ class TestDrafter:
 
     def test_write_x_post(self) -> None:
         drafter = Drafter(api_key="test", brand_dna=BRAND_DNA)
-        drafter.call_llm = MagicMock(
-            return_value='[{"text": "テスト投稿", "hashtags": ["#AI"]}]'
-        )
+        drafter.call_llm = MagicMock(return_value='[{"text": "テスト投稿", "hashtags": ["#AI"]}]')
         result = drafter.execute(
             {
                 "task_type": "x_post",
@@ -215,9 +213,7 @@ class TestLeadStrategist:
 
     def test_monthly_review(self) -> None:
         ls = LeadStrategist(api_key="test", brand_dna=BRAND_DNA)
-        ls.call_llm = MagicMock(
-            return_value="# 月次レビュー\n## KPI達成状況\n..."
-        )
+        ls.call_llm = MagicMock(return_value="# 月次レビュー\n## KPI達成状況\n...")
         result = ls.execute(
             {
                 "task_type": "monthly_review",
@@ -297,6 +293,39 @@ class TestGuardian:
         result = guardian.evaluate("営業メール本文だけ。送信者情報なし。", "outreach_email")
         assert result.verdict == "CRITICAL_VIOLATION"
         assert result.total_score == 0
+
+    def test_parse_evaluation_coerces_string_score(self) -> None:
+        guardian = Guardian(api_key="test", brand_dna=BRAND_DNA)
+        evaluation = guardian._parse_evaluation('{"total_score": "96", "verdict": "APPROVED"}')
+        assert evaluation.total_score == 96
+        assert isinstance(evaluation.total_score, int)
+
+    def test_parse_evaluation_invalid_score_defaults_zero(self) -> None:
+        guardian = Guardian(api_key="test", brand_dna=BRAND_DNA)
+        evaluation = guardian._parse_evaluation('{"total_score": "high", "verdict": "APPROVED"}')
+        assert evaluation.total_score == 0
+
+    def test_loop_respects_max_retries_override(self) -> None:
+        guardian = Guardian(api_key="test", brand_dna=BRAND_DNA)
+        guardian.call_llm = MagicMock(
+            return_value='{"total_score": 80, "verdict": "REJECTED", "feedback_to_agent": "改善"}'
+        )
+        revise_calls = []
+
+        def revise_fn(content: str, feedback: str) -> str:
+            revise_calls.append(feedback)
+            return content
+
+        result = guardian.evaluate_with_loop(
+            content="テスト",
+            content_type="note_article",
+            agent_name="Drafter",
+            revise_fn=revise_fn,
+            max_retries=1,
+        )
+        assert result["status"] == "escalated"
+        assert result["reason"] == "max_retries_exceeded"
+        assert len(revise_calls) == 2  # 初回 + リトライ1回
 
 
 class TestResearcher:
@@ -389,9 +418,7 @@ class TestResearcher:
 
     def test_summarize_sources(self) -> None:
         researcher = Researcher(api_key="test", brand_dna=BRAND_DNA)
-        researcher.call_llm = MagicMock(
-            return_value="# ソース要約\n## 1. Example\n- 要点: ..."
-        )
+        researcher.call_llm = MagicMock(return_value="# ソース要約\n## 1. Example\n- 要点: ...")
         result = researcher.execute(
             {
                 "task_type": "summarize_sources",
@@ -630,9 +657,7 @@ class TestAnalyst:
 
     def test_weekly_summary(self) -> None:
         analyst = Analyst(api_key="test", brand_dna=BRAND_DNA)
-        analyst.call_llm = MagicMock(
-            return_value="# 週次サマリー\n## パフォーマンス\n..."
-        )
+        analyst.call_llm = MagicMock(return_value="# 週次サマリー\n## パフォーマンス\n...")
         result = analyst.execute(
             {
                 "task_type": "weekly_summary",
@@ -646,9 +671,7 @@ class TestAnalyst:
 
     def test_monthly_report(self) -> None:
         analyst = Analyst(api_key="test", brand_dna=BRAND_DNA)
-        analyst.call_llm = MagicMock(
-            return_value="# 月次レポート\n## 概要\n..."
-        )
+        analyst.call_llm = MagicMock(return_value="# 月次レポート\n## 概要\n...")
         result = analyst.execute(
             {
                 "task_type": "monthly_report",
@@ -764,6 +787,26 @@ class TestScheduler:
         scheduler.add_task("test", 7, 0, lambda: "result")
         next_time = scheduler.next_run("test", datetime(2026, 5, 23, 6, 0, 0))
         assert next_time.hour == 7
+
+    def test_failed_task_not_retried_same_day(self) -> None:
+        from datetime import datetime, timedelta
+
+        from src.scheduler import Scheduler
+
+        def failing() -> None:
+            raise RuntimeError("API down")
+
+        scheduler = Scheduler()
+        scheduler.add_task("flaky", 7, 0, failing)
+        now = datetime(2026, 5, 23, 7, 0, 0)
+
+        results = scheduler.run_due_tasks(now)
+        assert results[0]["success"] is False
+
+        # 1分後の再ティックでは再実行されない（APIを叩き続けない）
+        assert scheduler.get_due_tasks(now + timedelta(minutes=1)) == []
+        # 翌日は再び実行対象になる
+        assert len(scheduler.get_due_tasks(now + timedelta(days=1))) == 1
 
 
 class TestSkillLoader:

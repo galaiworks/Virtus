@@ -1,5 +1,6 @@
 """Virtus Orchestrator - coordinates the 8-agent team."""
 
+import contextlib
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ from .agents.drafter import Drafter
 from .agents.guardian import Guardian
 from .agents.lead_strategist import LeadStrategist
 from .agents.researcher import Researcher
+from .brain import BrainLayer
 
 
 class Orchestrator:
@@ -21,10 +23,14 @@ class Orchestrator:
         api_key: str,
         brand_dna: dict[str, Any],
         output_dir: Path | None = None,
+        brain: BrainLayer | None = None,
+        customer_id: str | None = None,
     ) -> None:
         self.api_key = api_key
         self.brand_dna = brand_dna
         self.output_dir = output_dir or Path.cwd() / "output"
+        self.brain = brain
+        self.customer_id = customer_id
 
         self.lead_strategist = LeadStrategist(api_key, brand_dna)
         self.researcher = Researcher(api_key, brand_dna)
@@ -76,15 +82,27 @@ class Orchestrator:
             content_type=content_type,
             agent_name="Drafter",
             revise_fn=revise_fn,
+            max_retries=max_retries,
         )
 
-        return {
+        result = {
             "status": loop_result["status"],
             "content": loop_result.get("content"),
             "draft_output": draft_result.get("output"),
             "evaluation": loop_result.get("evaluation"),
             "retry_count": loop_result.get("retry_count", 0),
         }
+        self._audit_log(
+            "evaluations",
+            {
+                "agent": "Drafter",
+                "content_type": content_type,
+                "status": result["status"],
+                "total_score": (result["evaluation"] or {}).get("total_score"),
+                "retry_count": result["retry_count"],
+            },
+        )
+        return result
 
     def morning_brief(self, context: dict[str, Any]) -> dict[str, Any]:
         """Generate the morning brief with Lead Strategist."""
@@ -154,6 +172,14 @@ class Orchestrator:
 
         output = connector_result.get("output", {})
         if output.get("escalation_required"):
+            self._audit_log(
+                "escalations",
+                {
+                    "agent": "Connector",
+                    "level": output.get("escalation_level"),
+                    "reason": output.get("reason"),
+                },
+            )
             return {
                 "status": "escalated",
                 "connector_result": connector_result,
@@ -184,6 +210,14 @@ class Orchestrator:
         if not agent:
             return {"error": f"Unknown agent: {agent_name}"}
         return agent.execute(task)
+
+    def _audit_log(self, log_type: str, entry: dict[str, Any]) -> None:
+        """Persist an audit entry when a BrainLayer is attached (quality-95 要件)."""
+        if self.brain is None or self.customer_id is None:
+            return
+        # 監査ログの書き込み失敗でコンテンツ生成自体は止めない
+        with contextlib.suppress(OSError):
+            self.brain.append_log(self.customer_id, log_type, entry)
 
     def _extract_content_text(self, output: dict[str, Any]) -> str:
         """Extract text content from drafter output."""

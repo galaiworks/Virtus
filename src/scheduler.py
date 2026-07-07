@@ -79,6 +79,9 @@ class Scheduler:
                     }
                 )
             except Exception as e:
+                # 失敗時も last_run を更新し、翌日まで毎ティック再実行して
+                # API を叩き続けるのを防ぐ（失敗は results で通知）
+                task.last_run = now
                 results.append(
                     {
                         "task": task.name,

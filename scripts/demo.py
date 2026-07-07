@@ -158,9 +158,10 @@ def run_demo(api_key: str, mock: bool = False) -> None:
     print(f"リトライ回数: {content_result.get('retry_count', 0)}")
 
     if content_result.get("evaluation"):
+        evaluation = content_result["evaluation"]
         print("\n[Guardian評価]")
-        print(f"  スコア: {content_result['evaluation'].total_score}/100")
-        print(f"  フィードバック: {content_result['evaluation'].feedback}")
+        print(f"  スコア: {evaluation.get('total_score', 'N/A')}/100")
+        print(f"  フィードバック: {evaluation.get('feedback', '')}")
 
     if content_result.get("content"):
         print("\n[生成コンテンツ(先頭500文字)]")
