@@ -70,6 +70,18 @@ def test_score_with_decision_maker_pushes_into_high_priority():
     assert score.priority == "A"
 
 
+def test_funding_amount_does_not_double_count_as_revenue():
+    """調達額の「N 億円」を売上シグナルとして二重計上しない."""
+    release = _make_release(
+        title="株式会社サンプル、シリーズ A で 5 億円の資金調達",
+        description="調達資金はプロダクト開発に充当します。",
+    )
+    score = score_release(release)
+    assert score.breakdown["funding"] == 25
+    assert score.breakdown["revenue"] == 0  # 年商/売上/ARR の明示がない
+    assert score.score == 25
+
+
 def test_score_low_signal_release_skipped():
     """シグナルなしのリリースはスキップ判定."""
     release = _make_release(

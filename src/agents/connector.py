@@ -79,7 +79,7 @@ class Connector(BaseAgent):
     def draft_outreach_dm(self, context: dict[str, Any]) -> dict[str, Any]:
         """新規アウトリーチの DM 草案を生成 (LinkedIn / メール想定)."""
         system = self._build_system(context)
-        recipient = context.get("recipient", {})
+        recipient = context.get("recipient") or {}
         prior_context = context.get("prior_context", "")
         cta = context.get("cta", "1on1 (15 分) のご相談")
 
@@ -105,8 +105,9 @@ class Connector(BaseAgent):
         }
 
     def _build_system(self, context: dict[str, Any]) -> str:
+        recipient = context.get("recipient") or {}
         return CONNECTOR_SYSTEM.format(
             customer_name=context.get("customer_name", self.brand_dna.get("identity", {}).get("name", "顧客")),
             brand_dna=self.brand_dna_block(),
-            recipient_name=context.get("recipient", {}).get("name", "相手"),
+            recipient_name=recipient.get("name", "相手"),
         )

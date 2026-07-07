@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from anthropic import Anthropic
 from dotenv import load_dotenv
 
 from src.agents.analyst import Analyst
@@ -73,6 +74,7 @@ class VirtusTeam:
     settings: Settings
     brand_dna: dict[str, Any]
     store: BrainStore
+    sources: list[ProspectingSource]
     lead_strategist: LeadStrategist
     researcher: Researcher
     drafter: Drafter
@@ -84,6 +86,10 @@ class VirtusTeam:
     def close(self) -> None:
         """ストアと所有リソースを開放."""
         self.store.close()
+        for source in self.sources:
+            close = getattr(source, "close", None)
+            if callable(close):
+                close()
 
 
 def build_team(
@@ -91,6 +97,7 @@ def build_team(
     brand_dna: dict[str, Any] | None = None,
     sources: list[ProspectingSource] | None = None,
     store: BrainStore | None = None,
+    client: Any | None = None,
 ) -> VirtusTeam:
     """全エージェントをワイヤリングして返す.
 
@@ -99,15 +106,18 @@ def build_team(
         brand_dna: ブランド DNA (省略時は customer_brand_dna_path から).
         sources: Researcher のソース (省略時は PRTimesRSSSource).
         store: BrainStore (省略時はディスク上の customer_db_path).
+        client: 共有 Anthropic クライアント (省略時は 1 つ生成して全員で共有).
     """
     settings = settings or Settings.from_env()
     brand_dna = brand_dna or load_brand_dna(settings.customer_brand_dna_path)
     store = store or BrainStore(db_path=settings.customer_db_path)
     sources = sources if sources is not None else [PRTimesRSSSource()]
+    shared_client = client or Anthropic(api_key=settings.anthropic_api_key)
 
     common = {
         "api_key": settings.anthropic_api_key,
         "brand_dna": brand_dna,
+        "client": shared_client,
     }
     lead_strategist = LeadStrategist(model=settings.model_opus, **common)
     researcher = Researcher(
@@ -130,6 +140,7 @@ def build_team(
         settings=settings,
         brand_dna=brand_dna,
         store=store,
+        sources=sources,
         lead_strategist=lead_strategist,
         researcher=researcher,
         drafter=drafter,

@@ -7,6 +7,9 @@ from typing import Any
 
 from src.agents.base import BaseAgent
 
+# CWD に依存せず、常にリポジトリルート配下のスキル定義を参照する
+SKILLS_DIR = Path(__file__).resolve().parents[2] / ".claude" / "skills"
+
 DRAFTER_SYSTEM = """あなたは Virtus の Drafter エージェントです。
 
 # あなたの使命
@@ -121,7 +124,7 @@ class Drafter(BaseAgent):
     @staticmethod
     def _load_skill(skill_name: str) -> str:
         """`.claude/skills/{name}/SKILL.md` をロード."""
-        skill_path = Path(".claude/skills") / skill_name / "SKILL.md"
+        skill_path = SKILLS_DIR / skill_name / "SKILL.md"
         if not skill_path.exists():
             return f"## {skill_name}\n(SKILL.md が見つかりません: {skill_path})"
         return f"## スキル: {skill_name}\n\n{skill_path.read_text(encoding='utf-8')}"

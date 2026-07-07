@@ -71,14 +71,11 @@ class BrainStore:
         self.close()
 
     def upsert_lead(self, source: str, lead: LeadScore) -> None:
-        """同一 (source, source_id) があれば更新、なければ挿入."""
-        now = _utcnow_iso()
-        existing = self.conn.execute(
-            "SELECT created_at FROM leads WHERE source = ? AND source_id = ?",
-            (source, lead.release.source_id),
-        ).fetchone()
-        created_at = existing["created_at"] if existing else now
+        """同一 (source, source_id) があれば更新、なければ挿入.
 
+        created_at は ON CONFLICT の更新対象に含めないため、初回挿入時の値が維持される.
+        """
+        now = _utcnow_iso()
         self.conn.execute(
             """
             INSERT INTO leads (
@@ -111,7 +108,7 @@ class BrainStore:
                 json.dumps(lead.breakdown, ensure_ascii=False),
                 json.dumps(list(lead.matched_industries), ensure_ascii=False),
                 "new",
-                created_at,
+                now,
                 now,
             ),
         )

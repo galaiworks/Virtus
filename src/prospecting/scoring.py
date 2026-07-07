@@ -10,11 +10,12 @@ from dataclasses import dataclass, field
 
 from src.prospecting.sources import PressRelease
 
+# 売上シグナルは 売上/年商/ARR 等のプレフィックス必須。
+# 裸の「N 億円」は資金調達額と区別できず二重計上になるため含めない。
 _REVENUE_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"売上高?\s*[\d,，]+\s*(億|百万|千万|万)\s*円"),
     re.compile(r"年商\s*[\d,，]+\s*(億|百万|千万|万)\s*円"),
     re.compile(r"ARR\s*[\d,，]+\s*(億|百万|千万|万)\s*円"),
-    re.compile(r"[\d,，]+\s*億\s*円"),
 )
 
 _FUNDING_KEYWORDS = (

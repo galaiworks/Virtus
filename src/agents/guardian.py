@@ -13,8 +13,20 @@ from src.brand_dna import forbidden_expressions
 THRESHOLD = 95
 MAX_RETRIES = 3
 
+# ルールベースで即時 CRITICAL にするのは文脈に依らず違反確実な表現のみ。
+# 「完全」「圧倒的」等の文脈依存表現は LLM の過剰約束軸 (減点方式) に委ねる。
 EXCESSIVE_CLAIMS_PATTERN = re.compile(
-    r"(100\s*%|絶対(?!に[^必])|必ず[^も]|完全に|誰でも稼げる|業界\s*No\.?\s*1|世界一|魔法のような)"
+    r"100\s*[%％]"
+    r"|１００\s*[%％]"
+    r"|絶対"
+    r"|必ず(?!しも)"
+    r"|誰でも(?:簡単に)?稼げる"
+    r"|業界\s*No\.?\s*1"
+    r"|業界ナンバーワン"
+    r"|世界一"
+    r"|世界最高"
+    r"|日本一"
+    r"|魔法のよう"
 )
 
 EVALUATION_SYSTEM = """あなたは Virtus の Guardian です。
@@ -135,25 +147,27 @@ class Guardian(BaseAgent):
                 self_reflection_passed=False,
             )
 
-        # 2. LLM による 6 軸評価
+        # 2. LLM による 6 軸評価 (出力破損時は 1 回だけ再評価)
         system = EVALUATION_SYSTEM.format(
             brand_dna=self.brand_dna_block(),
             forbidden=", ".join(forbidden_expressions(self.brand_dna)) or "(なし)",
         )
-        raw = self.call_llm(
-            system=system,
-            messages=[
-                {
-                    "role": "user",
-                    "content": (
-                        f"以下のコンテンツ (種別: {content_type}) を評価し、"
-                        f"指定 JSON 形式のみで返してください。\n\n"
-                        f"---\n{content}\n---"
-                    ),
-                }
-            ],
-        )
-        parsed = self._parse_json(raw)
+        messages = [
+            {
+                "role": "user",
+                "content": (
+                    f"以下のコンテンツ (種別: {content_type}) を評価し、"
+                    f"指定 JSON 形式のみで返してください。\n\n"
+                    f"---\n{content}\n---"
+                ),
+            }
+        ]
+        raw = self.call_llm(system=system, messages=messages)
+        try:
+            parsed = self._parse_json(raw)
+        except (ValueError, json.JSONDecodeError):
+            raw = self.call_llm(system=system, messages=messages)
+            parsed = self._parse_json(raw)
         return self._verdict_from_parsed(parsed)
 
     @staticmethod

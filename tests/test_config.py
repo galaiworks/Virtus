@@ -58,14 +58,9 @@ def test_settings_paths_derive_from_brain_dir(tmp_path):
     assert settings.customer_db_path == tmp_path / "customers" / "abc" / "store.sqlite"
 
 
-def test_build_team_wires_all_agents(galaiworks_brand_dna, tmp_path, monkeypatch):
+def test_build_team_wires_all_agents(galaiworks_brand_dna, tmp_path):
     """build_team が 6 エージェントを生成し共通設定を共有する."""
-    # 実 Anthropic クライアントが立ち上がらないようにモック化
     fake_client = MagicMock()
-    monkeypatch.setattr(
-        "src.agents.base.Anthropic", lambda api_key: fake_client
-    )
-
     settings = Settings(
         anthropic_api_key="sk-test",
         customer_id="test_001",
@@ -78,6 +73,7 @@ def test_build_team_wires_all_agents(galaiworks_brand_dna, tmp_path, monkeypatch
         brand_dna=galaiworks_brand_dna,
         sources=[_StubSource()],
         store=store,
+        client=fake_client,
     )
 
     assert team.lead_strategist.model == settings.model_opus
@@ -101,16 +97,21 @@ def test_build_team_wires_all_agents(galaiworks_brand_dna, tmp_path, monkeypatch
     assert team.analyst.store is store
     # Drafter は規定スキルで初期化される
     assert "garai-tone" in team.drafter.skills
+    # 全エージェントが同一の共有クライアントを使う (コネクション節約)
+    for agent in (
+        team.lead_strategist,
+        team.researcher,
+        team.drafter,
+        team.connector,
+        team.analyst,
+        team.guardian,
+    ):
+        assert agent.client is fake_client
     team.close()
 
 
-def test_build_team_reads_brand_dna_from_disk(tmp_path, monkeypatch):
+def test_build_team_reads_brand_dna_from_disk(tmp_path):
     """brand_dna 未指定時は customer_brand_dna_path から読む."""
-    fake_client = MagicMock()
-    monkeypatch.setattr(
-        "src.agents.base.Anthropic", lambda api_key: fake_client
-    )
-
     settings = Settings(
         anthropic_api_key="sk-test",
         customer_id="ondisk",
@@ -126,6 +127,31 @@ def test_build_team_reads_brand_dna_from_disk(tmp_path, monkeypatch):
         settings=settings,
         sources=[_StubSource()],
         store=BrainStore(),
+        client=MagicMock(),
     )
     assert team.brand_dna["identity"]["name"] == "ディスク顧客"
     team.close()
+
+
+def test_team_close_releases_sources(galaiworks_brand_dna, tmp_path):
+    """VirtusTeam.close がソースの close も呼ぶ."""
+
+    class _ClosableSource(_StubSource):
+        def __init__(self) -> None:
+            self.closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    source = _ClosableSource()
+    team = build_team(
+        settings=Settings(
+            anthropic_api_key="sk-test", customer_id="c", brain_dir=tmp_path
+        ),
+        brand_dna=galaiworks_brand_dna,
+        sources=[source],
+        store=BrainStore(),
+        client=MagicMock(),
+    )
+    team.close()
+    assert source.closed is True
