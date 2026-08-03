@@ -37,13 +37,22 @@
 ### Phase 1:Virtus 内エージェント化(〜2026 年秋)
 **ゴール:Founding Members に提供できる品質。**
 
-- [ ] Python 実装(`src/agents/incorporation_advisor.py`、BaseAgent 継承・task_type ディスパッチ)
-- [ ] 状態の一元化:`brain/customers/{id}/incorporation-state.yaml`(decisions/watchlist/deadlines)を単一の真実に。MD は人間向けビュー
-- [ ] Guardian 95 点ループ統合(依頼メール・事業計画書=対外文書は必ず通す)
-- [ ] エスカレーションを rules/escalation.md の Level 1〜4 にマッピング(例:締切 7 日前未着手= Level 3)
-- [ ] 週次モニタの実行基盤(スケジューラ/cron。ループ設計は loop contract を書いてから起動)
-- [ ] monitor_grants 等の定型タスクは sonnet 指定でコスト最適化
+- [x] Python 実装(`src/agents/incorporation_advisor.py`、BaseAgent 継承・task_type ディスパッチ)
+- [x] 状態の一元化:`IncorporationState`(decisions/watchlist/回収額台帳)を単一の真実に。
+      永続化は `brain/customers/{id}/incorporation-state.json`(YAML も可)。MD は人間向けビュー
+- [x] Guardian 95 点ループ統合(対外文書は必ず通す。不合格なら本文を返さない)
+- [x] エスカレーションを rules/escalation.md の Level 1〜4 にマッピング
+      (締切 7 日前未着手= L3 / 社保の空白= L3 / 実態なき家族給与= L4)
+- [x] 週次モニタの実行基盤(`scripts/chloe_weekly_check.py`。オフライン動作・
+      L3 以上で非ゼロ終了しアラート接続可能)
+- [x] monitor_grants 等の定型タスクは sonnet 既定でコスト最適化
+- [ ] cron / スケジューラへの常設(loop contract を書いてから起動)
+- [ ] 実データでの運用開始(Phase 0 の設立進行と同時)
 - **Exit 基準**:Founding Member 1 名以上が利用し、回収額 > 0 を記録
+
+**実装メモ**:週次モニタが既定カタログの「締切未定」で、運用者が公式一次情報から
+入力した締切を上書き消去するバグを実装中に検出・修正済み(消えると締切
+エスカレーションが発火せず取り逃しに直結するため回帰テストを追加)。
 
 ### Phase 2:UI 付きサービス(Virtus Phase 2 と同期)
 **ゴール:非エンジニアのひとり社長が一人で使える。**
