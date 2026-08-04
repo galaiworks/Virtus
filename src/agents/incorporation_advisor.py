@@ -215,6 +215,8 @@ class IncorporationAdvisor(BaseAgent):
                 "days_left": days_left,
                 "eligibility": candidate["eligibility"],
                 "max_amount_jpy": candidate["max_amount_jpy"],
+                # 所要期間型の制度の着手期限(エスカレーション判定が参照する)。
+                "lead_time_slack_days": candidate["lead_time_slack_days"],
                 # 既に着手済みならステータスを維持する。
                 "status": existing.get("status", "eligible"),
             }

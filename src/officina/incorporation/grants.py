@@ -53,6 +53,8 @@ class GrantProgram:
         excludes_relatives: 事業主の 3 親等以内の親族を対象外とするか。
         industries: 想定業種キーワード(空なら業種を問わない)。
         regions: 対象地域(空なら全国)。
+        lead_time_days: 着手から完了までに最低限かかる日数。公募締切ではなく
+            「設立日までに間に合わせる」型の制度(特定創業支援等)で使う。
         url: 公式ソース URL。
         notes: 補足(代替経路・注意点)。
     """
@@ -67,6 +69,7 @@ class GrantProgram:
     excludes_relatives: bool = False
     industries: list[str] = field(default_factory=list)
     regions: list[str] = field(default_factory=list)
+    lead_time_days: int = 0
     url: str = ""
     notes: list[str] = field(default_factory=list)
 
@@ -76,16 +79,31 @@ class GrantProgram:
             return None
         return (self.deadline - (today or date.today())).days
 
+    def latest_start_date(self, target: date) -> date | None:
+        """目標日に間に合わせるための着手期限。``lead_time_days`` が 0 なら ``None``。"""
+        if self.lead_time_days <= 0:
+            return None
+        from datetime import timedelta
+
+        return target - timedelta(days=self.lead_time_days)
+
 
 @dataclass
 class EligibilityResult:
-    """適格性判定 1 件の結果。"""
+    """適格性判定 1 件の結果。
+
+    Attributes:
+        lead_time_slack_days: 着手期限までの余裕日数。負なら着手期限を過ぎている。
+            所要期間型の制度(``lead_time_days`` > 0)で ``target_date`` が
+            与えられた場合のみ算出される。エスカレーション判定が参照する。
+    """
 
     program: GrantProgram
     eligibility: Eligibility
     reasons: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     days_left: int | None = None
+    lead_time_slack_days: int | None = None
 
     @property
     def actionable(self) -> bool:
@@ -164,6 +182,25 @@ def evaluate_eligibility(
     if program.deadline is not None and not program.deadline_confirmed:
         warnings.append("締切が未確認。公式一次情報で確定してから動く")
 
+    # --- 所要期間(公募締切ではなく目標日から逆算する型の制度) ---
+    target = _parse_date(profile.get("target_date"))
+    lead_time_slack: int | None = None
+    if program.lead_time_days > 0 and target is not None:
+        latest_start = program.latest_start_date(target)
+        base = today or date.today()
+        if latest_start is not None:
+            lead_time_slack = (latest_start - base).days
+            if lead_time_slack < 0:
+                warnings.append(
+                    f"所要 {program.lead_time_days} 日に対し着手期限"
+                    f"({latest_start})を {abs(lead_time_slack)} 日過ぎている。"
+                    f"目標日({target})に間に合わないため目標日の見直しが必要"
+                )
+            else:
+                reasons.append(
+                    f"目標日({target})に間に合わせるには残り {lead_time_slack} 日以内に着手"
+                )
+
     if excluded:
         eligibility = Eligibility.EXCLUDED
     elif warnings and not reasons:
@@ -179,6 +216,7 @@ def evaluate_eligibility(
         reasons=reasons,
         warnings=warnings,
         days_left=days_left,
+        lead_time_slack_days=lead_time_slack,
     )
 
 
@@ -218,6 +256,18 @@ def weekly_check(
     }
 
 
+def _parse_date(value: Any) -> date | None:
+    """ISO 文字列または ``date`` を ``date`` へ正規化する。"""
+    if isinstance(value, date):
+        return value
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(str(value))
+    except ValueError:
+        return None
+
+
 def _result_to_dict(result: EligibilityResult) -> dict[str, Any]:
     """判定結果を報告用 dict へ変換する。"""
     return {
@@ -228,6 +278,7 @@ def _result_to_dict(result: EligibilityResult) -> dict[str, Any]:
         "max_amount_jpy": result.program.max_amount_jpy,
         "deadline": result.program.deadline.isoformat() if result.program.deadline else None,
         "days_left": result.days_left,
+        "lead_time_slack_days": result.lead_time_slack_days,
         "reasons": result.reasons,
         "warnings": result.warnings,
         "url": result.program.url,
@@ -240,30 +291,39 @@ def default_programs() -> list[GrantProgram]:
 
     ⚠️ 締切・要件は毎年変動する。``deadline_confirmed=False`` の項目は
     公式一次情報で確定してから提示すること(設計レビュー A-3 の是正)。
+    締切は 2026-08-04 時点で確認したもの。公募回が進むと更新が必要。
     """
     return [
         GrantProgram(
             key="digital_ai",
-            name="デジタル化・AI導入補助金(旧 IT 導入補助金)",
+            name="デジタル化・AI導入補助金(旧 IT 導入補助金)通常枠",
             level="national",
+            # 通常枠は複数回の締切がある。1 次 5/12・2 次 6/15・3 次 7/21・4 次 8/25。
+            # 直近の未到来分を設定する(公募回が進んだら更新する)。
+            deadline=date(2026, 8, 25),
+            deadline_confirmed=True,
             industries=["AI", "ソフトウェア", "IT", "SaaS"],
-            url="https://it-shien.smrj.go.jp/",
+            url="https://it-shien.smrj.go.jp/schedule/",
             notes=[
                 "本命はベンダー側の IT 導入支援事業者登録"
                 "(自社ツールを顧客が補助金で導入できる)",
                 "新設法人は法人単独登録の経営基盤要件を満たせない場合がある。"
                 "既存事業者のコンソーシアム構成員としての参加が代替経路",
+                "通常枠の締切は複数回。4 次(8/25)を過ぎたら次回締切へ更新する",
             ],
         ),
         GrantProgram(
             key="jizokuka",
-            name="小規模事業者持続化補助金",
+            name="小規模事業者持続化補助金(第 20 回)",
             level="national",
             max_amount_jpy=500_000,
+            deadline=date(2026, 12, 15),
+            deadline_confirmed=True,
             url="https://www.chusho.meti.go.jp/",
             notes=[
                 "HP 制作・広告・セミナー集客など販路開拓に使える",
-                "商工会議所の事業支援計画書(様式 4)は申請締切より前に締め切られる",
+                "申請受付は 11/5 開始。事業支援計画書(様式 4)の発行受付は "
+                "12/4 締切で本締切より 11 日早い。商工会議所へ早めに依頼する",
             ],
         ),
         GrantProgram(
@@ -272,7 +332,10 @@ def default_programs() -> list[GrantProgram]:
             level="national",
             industries=["AI", "ソフトウェア", "システム"],
             url="https://portal.monodukuri-hojo.jp/",
-            notes=["次回公募待ち。設備・システム開発など大型投資向け"],
+            notes=[
+                "第 23 次(2/6〜5/8)は終了。次回公募待ちのため締切は未設定",
+                "設備・システム開発など大型投資向け",
+            ],
         ),
         GrantProgram(
             key="career_up",
@@ -298,6 +361,8 @@ def default_programs() -> list[GrantProgram]:
             notes=[
                 "デジタル技術で地域・社会課題を解決する起業が対象",
                 "事前確認団体(商工会議所・金融機関)の確認書が必要",
+                "1 次募集(〜6/18)は終了。2 次募集は未発表のため締切は未設定"
+                "(前年度は 2 次募集の実績あり)。NICO 025-384-0460 で確認する",
             ],
         ),
         GrantProgram(
@@ -307,10 +372,14 @@ def default_programs() -> list[GrantProgram]:
             max_amount_jpy=75_000,  # 登録免許税の軽減額(15 万 → 7.5 万)
             regions=["新潟"],
             requires_established=False,
+            # 公募締切ではなく「設立日までに証明書を取る」型。
+            # 4 回以上・1 ヶ月以上の支援 + 証明書交付の事務処理を見込む。
+            lead_time_days=45,
             url="https://www.city.niigata.lg.jp/business/shoko/shokoshien/sogyoshien/sogyoshienn.html",
             notes=[
                 "4 分野の支援を 4 回以上・1 ヶ月以上受ける必要がある",
                 "証明書は設立登記より前に取得する必要がある(登録免許税が半額)",
+                "公募締切はない。所要期間から設立予定日を逆算して着手する",
             ],
         ),
     ]

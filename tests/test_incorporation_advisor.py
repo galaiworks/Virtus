@@ -103,6 +103,18 @@ class TestMonitorGrants:
         assert entry["deadline"] == "2026-08-08"
         assert entry["days_left"] == 5
 
+    def test_lead_time_overrun_reaches_escalation(self, advisor) -> None:
+        """所要期間型の制度の着手遅れが、モニタ経由でエスカレーションまで届くこと。"""
+        advisor.state.profile["target_date"] = "2026-09-01"
+        advisor.execute({"task_type": "monitor_grants", "today": "2026-08-04"})
+
+        entry = advisor.state.watchlist["niigata_tokutei_sogyo"]
+        assert entry["lead_time_slack_days"] < 0
+
+        result = advisor.execute({"task_type": "check_escalations", "today": "2026-08-04"})
+        assert result.output["highest_level"] == 3
+        assert any("着手期限" in t["reason"] for t in result.output["triggers"])
+
     def test_preserved_deadline_still_escalates(self, advisor) -> None:
         advisor.state.watchlist["niigata_tokutei_sogyo"] = {
             "deadline": "2026-08-08",

@@ -98,6 +98,62 @@ def check_deadlines(
     return triggers
 
 
+def check_lead_time(watchlist: dict[str, dict[str, Any]]) -> list[EscalationTrigger]:
+    """所要期間型の制度で着手期限を過ぎている/迫っているものを検出する。
+
+    公募締切を持たず「目標日までに完了させる」型の制度(特定創業支援等)は、
+    締切ベースの監視では取り逃す。着手期限の余裕日数で判定する。
+
+    Args:
+        watchlist: ``{key: {"name", "lead_time_slack_days", "status"}}``。
+
+    Returns:
+        ``EscalationTrigger`` のリスト。
+    """
+    triggers: list[EscalationTrigger] = []
+
+    for key, item in watchlist.items():
+        slack = item.get("lead_time_slack_days")
+        if slack is None:
+            continue
+        if str(item.get("status", "watching")) in _IN_PROGRESS_STATUSES:
+            continue
+
+        slack = int(slack)
+        name = str(item.get("name", key))
+        details = {"key": key, "name": name, "lead_time_slack_days": slack}
+
+        if slack < 0:
+            triggers.append(
+                EscalationTrigger(
+                    level=3,
+                    reason=(
+                        f"着手期限を {abs(slack)} 日超過しており目標日に間に合わない: {name}"
+                        "(目標日の見直しか、この制度の見送り判断が必要)"
+                    ),
+                    details=details,
+                )
+            )
+        elif slack <= DEADLINE_CRITICAL_DAYS:
+            triggers.append(
+                EscalationTrigger(
+                    level=3,
+                    reason=f"着手期限まで残り {slack} 日で未着手: {name}",
+                    details=details,
+                )
+            )
+        elif slack <= DEADLINE_WARNING_DAYS:
+            triggers.append(
+                EscalationTrigger(
+                    level=2,
+                    reason=f"着手期限が近づいている(残り {slack} 日): {name}",
+                    details=details,
+                )
+            )
+
+    return triggers
+
+
 def check_social_insurance_gap(profile: dict[str, Any]) -> list[EscalationTrigger]:
     """退職日と社会保険加入日の空白(無保険期間)を検出する。
 
@@ -194,6 +250,7 @@ def check_escalations(
     triggers: list[EscalationTrigger] = []
     triggers.extend(check_substance_risk(profile.get("family_salaries")))
     triggers.extend(check_deadlines(watchlist, today=today))
+    triggers.extend(check_lead_time(watchlist))
     triggers.extend(check_social_insurance_gap(profile))
     triggers.sort(key=lambda t: -t.level)
     return triggers

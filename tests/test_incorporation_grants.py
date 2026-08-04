@@ -7,6 +7,7 @@ from datetime import date
 from src.officina.incorporation.escalation import (
     check_deadlines,
     check_escalations,
+    check_lead_time,
     check_social_insurance_gap,
     check_substance_risk,
 )
@@ -100,6 +101,63 @@ class TestWeeklyCheck:
         assert programs["career_up"].excludes_relatives is True
         # ベンダー登録の代替経路(コンソーシアム)が注記されている。
         assert any("コンソーシアム" in n for n in programs["digital_ai"].notes)
+
+    def test_confirmed_deadlines_are_marked(self) -> None:
+        """締切を入れた制度は必ず確認済みフラグを立てる(二次情報を流さない)。"""
+        for program in default_programs():
+            if program.deadline is not None:
+                assert program.deadline_confirmed is True, program.key
+
+
+class TestLeadTime:
+    """公募締切を持たず目標日から逆算する型の制度(特定創業支援等)。"""
+
+    PROGRAM = GrantProgram(
+        key="tokutei", name="特定創業支援", lead_time_days=45, requires_established=False
+    )
+
+    def test_slack_positive_when_in_time(self) -> None:
+        result = evaluate_eligibility(
+            self.PROGRAM, {"target_date": "2026-10-01"}, today=TODAY
+        )
+        assert result.lead_time_slack_days == 14
+        assert any("残り 14 日以内に着手" in r for r in result.reasons)
+
+    def test_slack_negative_when_too_late(self) -> None:
+        # 目標 9/1 − 所要 45 日 = 着手期限 7/18。基準日 8/3 なので 16 日超過。
+        result = evaluate_eligibility(
+            self.PROGRAM, {"target_date": "2026-09-01"}, today=TODAY
+        )
+        assert result.lead_time_slack_days == -16
+        assert any("間に合わない" in w for w in result.warnings)
+
+    def test_no_target_date_means_no_slack(self) -> None:
+        result = evaluate_eligibility(self.PROGRAM, {}, today=TODAY)
+        assert result.lead_time_slack_days is None
+
+    def test_overrun_escalates_level3(self) -> None:
+        """着手期限の超過は金銭損失に直結するため必ず人間を呼ぶ。"""
+        watchlist = {
+            "tokutei": {"name": "特定創業支援", "lead_time_slack_days": -18, "status": "eligible"}
+        }
+        triggers = check_lead_time(watchlist)
+        assert triggers[0].level == 3
+
+    def test_near_start_deadline_escalates_level3(self) -> None:
+        watchlist = {"t": {"name": "x", "lead_time_slack_days": 5, "status": "eligible"}}
+        assert check_lead_time(watchlist)[0].level == 3
+
+    def test_approaching_start_deadline_escalates_level2(self) -> None:
+        watchlist = {"t": {"name": "x", "lead_time_slack_days": 12, "status": "eligible"}}
+        assert check_lead_time(watchlist)[0].level == 2
+
+    def test_ample_slack_is_quiet(self) -> None:
+        watchlist = {"t": {"name": "x", "lead_time_slack_days": 60, "status": "eligible"}}
+        assert check_lead_time(watchlist) == []
+
+    def test_started_program_is_not_escalated(self) -> None:
+        watchlist = {"t": {"name": "x", "lead_time_slack_days": -30, "status": "preparing"}}
+        assert check_lead_time(watchlist) == []
 
 
 class TestEscalation:
