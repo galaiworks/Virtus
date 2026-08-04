@@ -46,8 +46,9 @@
 - [x] 週次モニタの実行基盤(`scripts/chloe_weekly_check.py`。オフライン動作・
       L3 以上で非ゼロ終了しアラート接続可能)
 - [x] monitor_grants 等の定型タスクは sonnet 既定でコスト最適化
-- [ ] cron / スケジューラへの常設(loop contract を書いてから起動)
-- [ ] 実データでの運用開始(Phase 0 の設立進行と同時)
+- [x] cron / スケジューラへの常設:`loops/chloe-grant-watch.md`(loop contract)+
+      `.github/workflows/chloe-weekly-check.yml`(毎週月曜 08:00 JST)。自律度 **L1(報告のみ)**
+- [ ] 実データでの運用開始(Phase 0 の設立進行と同時。締切を公式一次情報で入力する)
 - **Exit 基準**:Founding Member 1 名以上が利用し、回収額 > 0 を記録
 
 **実装メモ**:週次モニタが既定カタログの「締切未定」で、運用者が公式一次情報から
