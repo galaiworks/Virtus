@@ -5,7 +5,7 @@
     "region": "新潟市",
     "established": false,
     "hiring_target": "",
-    "target_date": "2026-09-01"
+    "target_date": "2026-10-01"
   },
   "decisions": {},
   "watchlist": {
@@ -61,12 +61,13 @@
       "eligibility": "likely",
       "max_amount_jpy": 75000,
       "status": "eligible",
-      "lead_time_slack_days": -17
+      "lead_time_slack_days": 13
     }
   },
   "value_ledger": [],
   "notes": [
     "公開情報のみ。顧客の財務データは brain/customers/ に置く。",
-    "締切は 2026-08-04 に公式情報で確認。公募回が進んだら更新すること。"
+    "締切は 2026-08-04 に公式情報で確認。公募回が進んだら更新すること。",
+    "2026-08-04: プラン A 採用。設立目標を 10/1 に変更(特定創業支援を取り切る)。"
   ]
 }
