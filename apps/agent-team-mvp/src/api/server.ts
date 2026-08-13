@@ -11,10 +11,10 @@ import { registerAdminRoutes } from './admin-routes.js';
 import { registerSlackRoutes } from './slack-routes.js';
 
 export function buildServer(app: App): FastifyInstance {
+  // テスト実行時はリクエストログを出さない。運用では既定で info。
+  const logLevel = process.env.LOG_LEVEL ?? (process.env.NODE_ENV === 'test' ? 'silent' : 'info');
   const server = Fastify({
-    logger: { level: process.env.LOG_LEVEL ?? 'info' },
-    // 秘密情報をログへ出さない。
-    disableRequestLogging: false,
+    logger: logLevel === 'silent' ? false : { level: logLevel },
   });
 
   // Slack は application/x-www-form-urlencoded で送ってくる。
