@@ -1,0 +1,70 @@
+# クロエ 助成金週次モニタ(loop contract: loops/chloe-grant-watch.md)
+#
+# 自律度 L1(報告のみ)。外部送信はせず、エスカレーション Level 3 以上を
+# 検出した場合に **ジョブを失敗させて GitHub 標準通知**で人間へ届ける。
+#
+# セッション内 cron を使わない理由:リモート実行環境のコンテナは回収されるため
+# 週次スケジュールが維持できない。リポジトリ常設の Actions で回す。
+
+name: chloe-weekly-check
+
+on:
+  schedule:
+    # 毎週月曜 08:00 JST(= 日曜 23:00 UTC)
+    - cron: "0 23 * * 0"
+  workflow_dispatch:
+    inputs:
+      today:
+        description: "判定基準日(ISO 形式。空なら実行日)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10 # Stop ガード:1 実行 1 パス
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 依存関係のインストール
+        run: pip install --quiet pytest pyyaml
+
+      # Checker(自動): Maker と分離された回帰テスト。
+      # 落ちた場合はリトライせず即停止する(誤ったロジックを回し続けないため)。
+      - name: Checker — 回帰テスト
+        run: python -m pytest tests/ -q
+
+      - name: Maker — 週次モニタ実行
+        id: monitor
+        continue-on-error: true # 判定結果は後段でまとめて扱う
+        run: |
+          python scripts/chloe_weekly_check.py \
+            --state loops/state/chloe-grant-watch-state.json \
+            ${{ inputs.today && format('--today {0}', inputs.today) || '' }} \
+            --dry-run \
+            | tee weekly-report.json
+
+      - name: レポートを artifact へ保存
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chloe-weekly-report
+          path: weekly-report.json
+          retention-days: 90
+
+      # Escalate: Level 3 以上ならジョブを失敗させ、GitHub 標準通知で人間を呼ぶ。
+      # L1 では外部送信が禁止のため、Slack 等への自前投稿はしない。
+      - name: エスカレーション判定
+        if: steps.monitor.outcome == 'failure'
+        run: |
+          echo "::error::エスカレーション Level 3 以上を検出しました。"
+          echo "詳細は artifact(chloe-weekly-report)を確認してください。"
+          exit 1

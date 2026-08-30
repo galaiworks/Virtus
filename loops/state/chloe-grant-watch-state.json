@@ -1,0 +1,74 @@
+{
+  "customer_id": "galaiworks",
+  "profile": {
+    "industry": "AI 開発・導入支援・運用代行",
+    "region": "新潟市",
+    "established": false,
+    "hiring_target": "",
+    "target_date": "2026-10-01"
+  },
+  "decisions": {},
+  "watchlist": {
+    "digital_ai": {
+      "name": "デジタル化・AI導入補助金(旧 IT 導入補助金)通常枠",
+      "deadline": "2026-08-25",
+      "days_left": 21,
+      "eligibility": "likely",
+      "max_amount_jpy": 0,
+      "status": "eligible",
+      "lead_time_slack_days": null
+    },
+    "jizokuka": {
+      "name": "小規模事業者持続化補助金(第 20 回)",
+      "deadline": "2026-12-15",
+      "days_left": 133,
+      "eligibility": "likely",
+      "max_amount_jpy": 500000,
+      "status": "eligible",
+      "lead_time_slack_days": null
+    },
+    "monozukuri": {
+      "name": "ものづくり・商業・サービス生産性向上促進補助金",
+      "deadline": null,
+      "days_left": null,
+      "eligibility": "likely",
+      "max_amount_jpy": 0,
+      "status": "eligible",
+      "lead_time_slack_days": null
+    },
+    "career_up": {
+      "name": "キャリアアップ助成金(正社員化コース)",
+      "deadline": null,
+      "days_left": null,
+      "eligibility": "uncertain",
+      "max_amount_jpy": 1400000,
+      "status": "eligible",
+      "lead_time_slack_days": null
+    },
+    "niigata_kigyo_challenge": {
+      "name": "起業チャレンジ応援事業(新潟県 / NICO)",
+      "deadline": null,
+      "days_left": null,
+      "eligibility": "likely",
+      "max_amount_jpy": 2000000,
+      "status": "eligible",
+      "lead_time_slack_days": null
+    },
+    "niigata_tokutei_sogyo": {
+      "name": "特定創業支援等事業(新潟市)",
+      "deadline": null,
+      "days_left": null,
+      "eligibility": "likely",
+      "max_amount_jpy": 75000,
+      "status": "eligible",
+      "lead_time_slack_days": 13
+    }
+  },
+  "value_ledger": [],
+  "notes": [
+    "公開情報のみ。顧客の財務データは brain/customers/ に置く。",
+    "締切は 2026-08-04 に公式情報で確認。公募回が進んだら更新すること。",
+    "2026-08-04: プラン A 採用。設立目標を 10/1 に変更(特定創業支援を取り切る)。",
+    "2026-08-04: 定款認証は9月初旬の見込み。決算期(D-5)の確定期限が8月下旬に前倒し。"
+  ]
+}
