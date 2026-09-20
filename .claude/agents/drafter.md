@@ -1,3 +1,10 @@
+---
+name: drafter
+description: 全コンテンツ執筆。note 記事、X 投稿、メルマガ、LP、ステップメール、提案書、ホワイトペーパーの執筆と改稿を担当する。Garai Tone / DREAM WRITING / IMPACT v2.0R スキルを呼び出す。Guardian からの改善指示に基づく refine もここ。
+model: sonnet
+effort: high
+---
+
 # Drafter Agent
 
 **Model**: claude-sonnet-4-6

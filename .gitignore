@@ -62,3 +62,6 @@ service-account.json
 tmp/
 temp/
 *.tmp
+
+# Claude Code 個人設定(モデル/エフォートの既定値など)
+.claude/settings.local.json

@@ -51,6 +51,12 @@ Garai Tone、DREAM WRITING、IMPACT v2.0R は他社が複製不能な資産。�
 
 各エージェントの詳細は `.claude/agents/` 配下の各 `.md` ファイルを参照。
 
+上表のモデル ID は **Virtus プロダクトが Anthropic SDK 経由で呼ぶ実行時モデル**です。
+`.claude/agents/*.md` の frontmatter に書かれた `model` / `effort` は
+**Claude Code のサブエージェントとして動かすときの設定**で、別レイヤーです。
+複雑度に応じたモデル・エフォートの切替は、このサブエージェントへの委任で行います
+(詳細は [.claude/rules/auto-routing.md](./.claude/rules/auto-routing.md))。
+
 ---
 
 ## 開発時の重要なルール
@@ -201,6 +207,10 @@ while True:
 
 ## MCP 接続の取り扱い
 
+**どの MCP をいつ使うかの判断基準は [.claude/rules/auto-routing.md](./.claude/rules/auto-routing.md)** に定義されています。
+ユーザーが MCP を指名しなくても、タスク種別から自動選択してください。
+この規約は `.claude/settings.json` の SessionStart / UserPromptSubmit フックにより毎セッション自動で読み込まれます。
+
 MCP サーバー接続は `.mcp.json` で管理:
 
 ```json
@@ -307,7 +317,7 @@ galaiworks のサミット登壇に向けた優先順位:
 - [REQUIREMENTS.md](./REQUIREMENTS.md): 完全な要件定義書
 - [.claude/agents/](./.claude/agents/): 各エージェント定義
 - [.claude/skills/](./.claude/skills/): 共通スキル
-- [.claude/rules/](./.claude/rules/): 法令遵守ルール、品質ルール
+- [.claude/rules/](./.claude/rules/): 法令遵守ルール、品質ルール、MCP/モデル自動ルーティング規約
 - Anthropic 公式ドキュメント
 - 神さんの動画(AI CEO設計、PRタイムズ自動営業)
 

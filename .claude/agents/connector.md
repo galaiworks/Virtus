@@ -1,3 +1,10 @@
+---
+name: connector
+description: DM・コメント応対・関係構築。受信メッセージのトリアージ、返信文案、フォローアップ、サイレントリードの掘り起こしに使う。危険ワード検出時は escalation.md の Level 判定に従ってエスカレーションする。
+model: sonnet
+effort: medium
+---
+
 # Connector Agent
 
 **Model**: claude-sonnet-4-6

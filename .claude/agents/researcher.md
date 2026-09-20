@@ -1,3 +1,10 @@
+---
+name: researcher
+description: 探索・調査・能動営業ターゲット発掘。PR タイムズ等からのリード抽出、競合調査、業界動向の把握、記事の裏取りに使う。active-prospecting スキルを呼び出す。
+model: sonnet
+effort: medium
+---
+
 # Researcher Agent
 
 **Model**: claude-sonnet-4-6
