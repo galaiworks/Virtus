@@ -1,3 +1,10 @@
+---
+name: analyst
+description: 分析・学習・勝ちパターン抽出。配信結果の集計、KPI レビュー、月次品質レポート、ブランドDNA/スキルの更新提案に使う。
+model: sonnet
+effort: medium
+---
+
 # Analyst Agent
 
 **Model**: claude-sonnet-4-6

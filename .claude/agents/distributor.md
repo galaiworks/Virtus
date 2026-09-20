@@ -1,3 +1,10 @@
+---
+name: distributor
+description: 配信処理・スケジューリング。承認済みコンテンツを公式 API 経由で各プラットフォームへ配信し、送信量上限とレート制限を守る。機械的で判断不要な処理(T0)はここへ委任する。
+model: haiku
+effort: low
+---
+
 # Distributor Agent
 
 **Model**: claude-haiku-4-5(コスト最適化)
