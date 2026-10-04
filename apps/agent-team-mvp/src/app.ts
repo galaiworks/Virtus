@@ -6,7 +6,7 @@
  */
 
 import type { AppConfig } from './config.js';
-import { loadConfig } from './config.js';
+import { loadConfig, toIdentityTable } from './config.js';
 import { RandomIdGenerator, SequentialIdGenerator, type IdGenerator } from './domain/ids.js';
 import { SystemClock, type Clock } from './domain/clock.js';
 import type { Store } from './ports/store.js';
@@ -59,8 +59,15 @@ export interface BuildAppOverrides {
   clock?: Clock;
 }
 
-/** 既定の本人・ロール表。実運用では IdP または設定ファイルから読む。 */
-const DEFAULT_IDENTITIES = {
+/**
+ * 開発・デモ用の本人・ロール表。
+ *
+ * 実運用では `APPROVAL_IDENTITIES` に実際のチャット利用者 ID を設定する。
+ * この既定値はチャットが memory のときだけ使う。Slack を有効にしたまま
+ * 設定を忘れた場合は validateConfig が起動を止めるので、
+ * プレースホルダの ID で本番の承認が通ることはない。
+ */
+const DEV_IDENTITIES = {
   U_APPROVER: { userId: 'approver-1', displayName: '承認権者', role: 'approver' as const },
   U_OWNER: { userId: 'owner-1', displayName: 'プロセスオーナー', role: 'process_owner' as const },
   U_REQUESTER: { userId: 'requester-1', displayName: '依頼者', role: 'requester' as const },
@@ -85,7 +92,11 @@ export function buildApp(overrides: BuildAppOverrides = {}): App {
       : new ScriptedLlmAdapter());
 
   const chat = overrides.chat ?? buildChatAdapter(config);
-  const identities = overrides.identities ?? new StaticIdentityResolver(DEFAULT_IDENTITIES);
+  const identities =
+    overrides.identities ??
+    new StaticIdentityResolver(
+      config.identities.length > 0 ? toIdentityTable(config.identities) : DEV_IDENTITIES,
+    );
 
   const audit = new AuditRecorder(ids, clock);
   const agentCtx = { llm, ids, clock };

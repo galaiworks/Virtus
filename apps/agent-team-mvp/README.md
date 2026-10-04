@@ -118,6 +118,28 @@ security/incident > authorization > fact conflict > approval > clarification > r
 判断フローは「通知 → 詳細確認 → 判断 → 最終確定」の 4 段。
 ボタン押下は最終承認ではなく、最終確定画面で宛先・本文・範囲をもう一度確認させる(FR-032)。
 
+### 接続手順
+
+1. Slack アプリを作り、Bot Token Scopes に `chat:write` を付与してワークスペースへインストールする。
+2. Interactivity を有効にし、Request URL を `https://<公開URL>/slack/interactions` にする。
+3. 承認用チャンネルにアプリを招待する。
+4. 環境変数を設定する。
+
+```bash
+CHAT_PROVIDER=slack
+SLACK_BOT_TOKEN=xoxb-...
+SLACK_SIGNING_SECRET=...            # FR-034 の署名検証に必須
+SLACK_APPROVAL_CHANNEL=#virtus-approvals
+ADMIN_BASE_URL=https://...          # カードの「安全な詳細を開く」リンク先
+
+# 承認者・ロール表。Slack 利用者 ID を内部の本人・ロールへ対応づける。
+APPROVAL_IDENTITIES=[{"platform_user_id":"U01ABC2DEF","user_id":"garai","display_name":"ガライ","role":"approver"}]
+```
+
+Slack 利用者 ID は、プロフィール →「その他」→「メンバー ID をコピー」で取得する。
+`role=approver` が 1 人もいないまま Slack を有効にすると、
+誰も承認できず案件が滞留するため、**起動時に落ちる**。
+
 ---
 
 ## 評価セット
