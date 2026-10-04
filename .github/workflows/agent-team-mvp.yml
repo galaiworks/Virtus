@@ -1,0 +1,69 @@
+# AIエージェントチームMVP の CI(手順書 B-1)。
+#
+# 型検査、ユニットテスト、統合テスト、評価セットを自動実行する。
+# 手順書 E-2 より、プロンプト・モデル・スキーマ・ポリシー・ツールを変更したら
+# 20 件の評価セットと 5 件の HITL ケースを再実行し、結果差分を確認する。
+
+name: agent-team-mvp
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'apps/agent-team-mvp/**'
+      - '.github/workflows/agent-team-mvp.yml'
+  pull_request:
+    paths:
+      - 'apps/agent-team-mvp/**'
+      - '.github/workflows/agent-team-mvp.yml'
+
+defaults:
+  run:
+    working-directory: apps/agent-team-mvp
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # PostgreSQL アダプタの統合テストを実データベースに対して実行する。
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: agent_team_mvp
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/agent_team_mvp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/agent-team-mvp/package-lock.json
+
+      - name: 依存関係の取得
+        run: npm ci
+
+      - name: 型検査
+        run: npm run typecheck
+
+      - name: マイグレーション適用
+        run: npm run migrate
+
+      - name: テスト(ユニット / 統合 / HITL / 実行 / UAT)
+        run: npm test
+
+      - name: 評価セット(代表 20 件 + HITL 5 件)
+        run: npm run eval
